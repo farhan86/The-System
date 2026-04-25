@@ -39,11 +39,29 @@ async function getRecentPosts() {
   }
 }
 
+async function getProjects() {
+  const BRIDGE_URL = process.env.API_BRIDGE_URL!;
+  const SECRET = process.env.BRIDGE_SECRET!;
+  try {
+    const res = await fetch(BRIDGE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "get_projects", secret: SECRET }),
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/");
 
-  const [stats, posts] = await Promise.all([getStats(), getRecentPosts()]);
+  const [stats, posts, projects] = await Promise.all([getStats(), getRecentPosts(), getProjects()]);
   const firstName = session.user?.name?.split(" ")[0] ?? "there";
 
   return (
@@ -51,6 +69,7 @@ export default async function Dashboard() {
       firstName={firstName}
       stats={stats}
       posts={posts}
+      projects={projects}
       PostCard={PostCard}
       StatCard={StatCard}
     />
