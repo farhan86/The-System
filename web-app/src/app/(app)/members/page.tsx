@@ -14,14 +14,17 @@ export default function MembersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/pending") // We can use the same route or a new one to get approved users
-      // Actually, let's just make a quick bridge call for all users
+    // Call the bridge action directly or via a new API route
+    // Since I added get_all_users to the bridge, I should use the admin/pending route 
+    // or create a specific one. Let's reuse api/admin/pending but I'll update that route.
+    
+    fetch("/api/admin/pending?all=true")
       .then(res => res.json())
       .then(data => {
-        // For now, let's filter the data if we have it, otherwise empty
         setMembers(Array.isArray(data) ? data : []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   return (
@@ -59,7 +62,7 @@ export default function MembersPage() {
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 20, fontWeight: 800, color: "#fff"
               }}>
-                {member.name[0].toUpperCase()}
+                {member.name?.[0]?.toUpperCase() ?? "?"}
               </div>
               <div>
                 <div style={{ color: "#f0f8ff", fontWeight: 700, fontSize: 16 }}>{member.name}</div>
