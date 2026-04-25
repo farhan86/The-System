@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "KaloHub",
+  title: "The System",
   description: "Collaborative knowledge sharing platform",
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen relative selection:bg-white/20 selection:text-white`}>
+      <body className={`${inter.className} min-h-screen relative selection:bg-[--color-primary]/30 selection:text-white`}>
         {/* Navigation Sidebar/Top bar structure can stay in the layout component */}
         <div className="flex h-screen overflow-hidden">
           {/* Main content wrapper */}
