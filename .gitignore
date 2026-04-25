@@ -1,5 +1,6 @@
 # Ignored Folders
 docs/
+server/
 node_modules/
 .next/
 out/
