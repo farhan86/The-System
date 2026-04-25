@@ -91,8 +91,58 @@ if ($action === 'login') {
     $stmt->execute([$limit]);
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 
+} elseif ($action === 'get_posts_full') {
+    $limit = intval($inputData['limit'] ?? 50);
+    $stmt = $pdo->prepare(
+        "SELECT p.id, p.title, p.content, p.created_at, u.name as author_name
+         FROM posts p
+         JOIN users u ON p.author_id = u.id
+         ORDER BY p.created_at DESC
+         LIMIT ?"
+    );
+    $stmt->execute([$limit]);
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $attStmt = $pdo->prepare("SELECT post_id, file_url, orig_filename FROM attachments WHERE post_id = ?");
+    foreach ($posts as &$post) {
+        $attStmt->execute([$post['id']]);
+        $post['attachments'] = $attStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    echo json_encode($posts);
+
+} elseif ($action === 'create_post') {
+    $authorId     = intval($inputData['author_id'] ?? 0);
+    $title        = trim($inputData['title'] ?? '');
+    $content      = trim($inputData['content'] ?? '');
+    $fileUrl      = $inputData['file_url'] ?? null;
+    $origFilename = $inputData['orig_filename'] ?? null;
+
+    if (!$authorId || !$title || !$content) {
+        http_response_code(400);
+        echo json_encode(["message" => "Missing required fields"]);
+        exit;
+    }
+
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare("INSERT INTO posts (author_id, title, content) VALUES (?, ?, ?)");
+        $stmt->execute([$authorId, $title, $content]);
+        $postId = $pdo->lastInsertId();
+
+        if ($fileUrl && $origFilename) {
+            $attStmt = $pdo->prepare("INSERT INTO attachments (post_id, file_url, orig_filename) VALUES (?, ?, ?)");
+            $attStmt->execute([$postId, $fileUrl, $origFilename]);
+        }
+        $pdo->commit();
+        echo json_encode(["message" => "Post created", "postId" => intval($postId)]);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        http_response_code(500);
+        echo json_encode(["message" => "Failed to create post"]);
+    }
+
 } elseif ($action === 'get_stats') {
-    $postCount = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
+    $postCount   = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
     $memberCount = $pdo->query("SELECT COUNT(*) FROM users WHERE is_approved = 1")->fetchColumn();
     echo json_encode(["totalPosts" => intval($postCount), "totalMembers" => intval($memberCount)]);
 
