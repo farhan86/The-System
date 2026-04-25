@@ -65,7 +65,7 @@ export default function LoginPage() {
         >
           <h1 style={{ fontSize: 52, fontWeight: 900, lineHeight: 1.1, letterSpacing: "-2px", margin: 0, paddingBottom: 4 }}>
             <span style={{ color: "#f0f8ff" }}>The </span>
-            <span className="gradient-text">System</span>
+            <span className="aura-title">System</span>
           </h1>
           <p style={{ color: "rgba(240,248,255,0.3)", fontSize: 10, letterSpacing: "0.35em", textTransform: "uppercase", marginTop: 8 }}>
             Knowledge &amp; Collaboration Hub
@@ -233,6 +233,28 @@ export default function LoginPage() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         input::placeholder { color: rgba(240,248,255,0.2); }
+
+        /* Jinwoo aura — electric blue text, purple glow that breathes */
+        .aura-title {
+          color: #457bff;
+          animation: aura-breathe 3s ease-in-out infinite;
+        }
+        @keyframes aura-breathe {
+          0%, 100% {
+            text-shadow:
+              0 0 10px rgba(69, 123, 255, 0.9),
+              0 0 25px rgba(138, 43, 226, 0.7),
+              0 0 50px rgba(106, 13, 173, 0.5),
+              0 0 90px rgba(106, 13, 173, 0.2);
+          }
+          50% {
+            text-shadow:
+              0 0 18px rgba(69, 123, 255, 1),
+              0 0 40px rgba(138, 43, 226, 0.9),
+              0 0 80px rgba(106, 13, 173, 0.7),
+              0 0 130px rgba(106, 13, 173, 0.35);
+          }
+        }
       `}</style>
     </div>
   );
