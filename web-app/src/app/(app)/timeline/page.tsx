@@ -18,7 +18,8 @@ export default function GanttPage() {
     fetch("/api/projects")
       .then(res => res.json())
       .then(data => {
-        setProjects(Array.isArray(data) ? data : []);
+        const activeOnly = Array.isArray(data) ? data.filter((p: any) => p.status !== 'Completed') : [];
+        setProjects(activeOnly);
         setLoading(false);
       });
   }, []);

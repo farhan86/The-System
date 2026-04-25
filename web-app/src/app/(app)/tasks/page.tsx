@@ -32,7 +32,8 @@ export default function KanbanPage() {
     const tData = await tRes.json();
     const pData = await pRes.json();
     setTasks(Array.isArray(tData) ? tData : []);
-    setProjects(Array.isArray(pData) ? pData : []);
+    const activeOnly = Array.isArray(pData) ? pData.filter((p: any) => p.status !== 'Completed') : [];
+    setProjects(activeOnly);
     setLoading(false);
   };
 
