@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 
-export function StatCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
-  return (
+export function StatCard({ label, value, accent, href }: { label: string; value: number; accent?: boolean, href?: string }) {
+  const content = (
     <div
       style={{
         background: "rgba(14,12,28,0.7)",
@@ -10,7 +11,8 @@ export function StatCard({ label, value, accent }: { label: string; value: numbe
         padding: 24,
         border: "1px solid rgba(138,43,226,0.15)",
         transition: "border-color 0.3s, transform 0.2s",
-        cursor: "default",
+        cursor: href ? "pointer" : "default",
+        height: "100%",
       }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.4)";
@@ -33,6 +35,8 @@ export function StatCard({ label, value, accent }: { label: string; value: numbe
       </p>
     </div>
   );
+
+  return href ? <Link href={href} style={{ textDecoration: "none" }}>{content}</Link> : content;
 }
 
 export function PostCard({ post }: { post: any }) {
@@ -66,7 +70,14 @@ export function PostCard({ post }: { post: any }) {
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-        <h4 style={{ fontWeight: 700, fontSize: 15, color: "#f0f8ff", margin: 0 }}>{post.title}</h4>
+        <div>
+          <h4 style={{ fontWeight: 700, fontSize: 15, color: "#f0f8ff", margin: 0 }}>{post.title}</h4>
+          {post.project_name && (
+            <span style={{ fontSize: 9, color: "#457bff", fontWeight: 700, textTransform: "uppercase", marginTop: 2, display: "block" }}>
+              {post.project_name}
+            </span>
+          )}
+        </div>
         <span style={{ fontSize: 11, color: "rgba(240,248,255,0.25)", flexShrink: 0, marginLeft: 12 }}>{timeAgo(post.created_at)}</span>
       </div>
       <p style={{
