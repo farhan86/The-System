@@ -5,7 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // Define your bridge secret in a secure location on the server (matches BRIDGE_SECRET in Vercel .env)
-$EXPECTED_SECRET = "REPLACE_WITH_YOUR_COMPLEX_SECRET"; 
+$EXPECTED_SECRET = '348Tj1lCr906$slw';
 
 // Receive Next.js Vercel payload
 $inputData = json_decode(file_get_contents("php://input"), true);
@@ -19,9 +19,9 @@ if (!isset($inputData['secret']) || $inputData['secret'] !== $EXPECTED_SECRET) {
 
 // 2. Connect to MariaDB Host 
 $host = "localhost";
-$db = "REPLACE_DATABASE_NAME";
-$user = "REPLACE_DB_USER";
-$pass = "REPLACE_DB_PASS";
+$db = "lspgfcom_thesystem";
+$user = "lspgfcom_admin86";
+$pass = '380Tj1lCr906$slw';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass);
@@ -50,14 +50,36 @@ if ($action === 'login') {
             "name" => $dbUser['name'],
             "email" => $dbUser['email'],
             "avatarUrl" => $dbUser['avatarUrl'] ?? null,
-            "is_approved" => (bool)$dbUser['is_approved'] // Next.js will reject if this is false
+            "is_approved" => (bool) $dbUser['is_approved'] // Next.js will reject if this is false
         ]);
     } else {
         http_response_code(400);
         echo json_encode(["message" => "Invalid email or password"]);
     }
-}
-else {
+} elseif ($action === 'signup') {
+    $email = $inputData['email'] ?? '';
+    $password = $inputData['password'] ?? '';
+    $name = $inputData['name'] ?? '';
+
+    // Check if user exists
+    $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+    $checkStmt->execute([$email]);
+    if ($checkStmt->fetch()) {
+        http_response_code(400);
+        echo json_encode(["message" => "Email already registered"]);
+        exit;
+    }
+
+    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+    $insertStmt = $pdo->prepare("INSERT INTO users (name, email, password, is_approved) VALUES (?, ?, ?, 0)");
+    
+    if ($insertStmt->execute([$name, $email, $hashedPassword])) {
+        echo json_encode(["message" => "Registration successful. Pending admin approval."]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["message" => "Registration failed."]);
+    }
+} else {
     http_response_code(400);
     echo json_encode(["message" => "Action undefined"]);
 }

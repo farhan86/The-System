@@ -1,13 +1,16 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type Mode = "login" | "signup";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ text: string; type: "success" | "info" } | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: "success" | "info" | "error" } | null>(null);
   const [focused, setFocused] = useState<string | null>(null);
 
   const switchMode = (next: Mode) => {
@@ -20,11 +23,45 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
-    await new Promise(r => setTimeout(r, 900));
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
     if (mode === "signup") {
-      setMessage({ text: "Request submitted. You'll receive access once the admin approves your account.", type: "success" });
+      const name = formData.get("name") as string;
+      try {
+        const res = await fetch("/api/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.message);
+        
+        setMessage({ text: "Request submitted! You'll receive access once the admin approves your account.", type: "success" });
+        // Optionally switch back to login mode
+        setTimeout(() => switchMode("login"), 3000);
+      } catch (err: any) {
+        setMessage({ text: err.message || "Failed to sign up", type: "error" });
+      }
     } else {
-      setMessage({ text: "Login backend wires up in Phase 2.", type: "info" });
+      // Login mode using NextAuth
+      try {
+        const res = await signIn("credentials", {
+          redirect: false,
+          email,
+          password,
+        });
+
+        if (res?.error) {
+          setMessage({ text: res.error, type: "error" });
+        } else {
+          router.push("/dashboard");
+        }
+      } catch (err: any) {
+        setMessage({ text: "An error occurred during login", type: "error" });
+      }
     }
     setLoading(false);
   };
@@ -185,12 +222,12 @@ export default function LoginPage() {
                       transition={{ duration: 0.25 }}
                       style={{
                         padding: "12px 14px", borderRadius: 10, fontSize: 13, lineHeight: 1.5,
-                        background: message.type === "success" ? "rgba(69,123,255,0.1)" : "rgba(138,43,226,0.1)",
-                        border: `1px solid ${message.type === "success" ? "rgba(69,123,255,0.35)" : "rgba(138,43,226,0.35)"}`,
-                        color: message.type === "success" ? "#6aabff" : "#b57aff",
+                        background: message.type === "success" ? "rgba(69,123,255,0.1)" : message.type === "error" ? "rgba(244,63,94,0.1)" : "rgba(138,43,226,0.1)",
+                        border: `1px solid ${message.type === "success" ? "rgba(69,123,255,0.35)" : message.type === "error" ? "rgba(244,63,94,0.35)" : "rgba(138,43,226,0.35)"}`,
+                        color: message.type === "success" ? "#6aabff" : message.type === "error" ? "#fb7185" : "#b57aff",
                       }}
                     >
-                      {message.type === "success" ? "✅ " : "🔐 "}{message.text}
+                      {message.type === "success" ? "✅ " : message.type === "error" ? "❌ " : "🔐 "}{message.text}
                     </motion.div>
                   )}
                 </AnimatePresence>
