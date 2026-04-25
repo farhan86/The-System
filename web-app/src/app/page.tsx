@@ -69,7 +69,9 @@ export default function LoginPage() {
   const inputBase: React.CSSProperties = {
     width: "100%",
     background: "rgba(10, 21, 67, 0.5)",
-    border: "1px solid rgba(138,43,226,0.2)",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: "rgba(138,43,226,0.2)",
     borderRadius: "12px",
     padding: "12px 16px",
     color: "#f0f8ff",
