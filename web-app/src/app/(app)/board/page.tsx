@@ -244,7 +244,25 @@ export default function BoardPage() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchPosts(); }, []);
+  useEffect(() => { 
+    fetchPosts(); 
+
+    // Real-time refresh
+    let pusher: any;
+    const init = async () => {
+      const PusherJS = (await import("pusher-js")).default;
+      // @ts-ignore
+      const PClient = PusherJS.default || PusherJS;
+      pusher = new PClient(process.env.NEXT_PUBLIC_PUSHER_KEY!, { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER! });
+      const channel = pusher.subscribe("board-channel");
+      channel.bind("new-post", () => {
+        fetchPosts(); // Reload feed when someone posts
+      });
+    };
+    init();
+
+    return () => { if (pusher) pusher.unsubscribe("board-channel"); };
+  }, []);
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto" }}>

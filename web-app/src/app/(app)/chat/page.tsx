@@ -23,6 +23,13 @@ export default function ChatPage() {
     let pusher: any;
 
     const initPusher = async () => {
+      // Fetch History
+      try {
+        const res = await fetch("/api/chat");
+        const history = await res.json();
+        setMessages(history);
+      } catch (e) { console.error("History fetch failed", e); }
+
       const PusherJS = (await import("pusher-js")).default;
       // @ts-ignore
       const PClient = PusherJS.default || PusherJS;
