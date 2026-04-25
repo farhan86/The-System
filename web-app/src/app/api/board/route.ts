@@ -7,12 +7,20 @@ const BRIDGE_URL = process.env.API_BRIDGE_URL!;
 const BRIDGE_SECRET = process.env.BRIDGE_SECRET!;
 
 // ── GET: Fetch all posts with attachments ─────────────────────────────────────
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const projectId = searchParams.get("projectId");
+
   try {
     const res = await fetch(BRIDGE_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "get_posts_full", secret: BRIDGE_SECRET, limit: 50 }),
+      body: JSON.stringify({ 
+        action: "get_posts_full", 
+        secret: BRIDGE_SECRET, 
+        limit: 50,
+        project_id: projectId 
+      }),
       cache: "no-store",
     });
     const data = await res.json();
@@ -29,10 +37,11 @@ export async function POST(req: Request) {
 
   try {
     const formData = await req.formData();
-    const title    = formData.get("title")   as string;
-    const content  = formData.get("content") as string;
-    const file     = formData.get("file")    as File | null;
-    const authorId = (session.user as any).id;
+    const title     = formData.get("title")     as string;
+    const content   = formData.get("content")   as string;
+    const projectId = formData.get("projectId") as string;
+    const file      = formData.get("file")      as File | null;
+    const authorId  = (session.user as any).id;
 
     if (!title?.trim() || !content?.trim()) {
       return NextResponse.json({ message: "Title and content are required" }, { status: 400 });
@@ -72,6 +81,7 @@ export async function POST(req: Request) {
         action:        "create_post",
         secret:        BRIDGE_SECRET,
         author_id:     authorId,
+        project_id:    projectId,
         title,
         content,
         file_url:      fileUrl,
