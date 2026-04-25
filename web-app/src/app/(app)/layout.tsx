@@ -1,5 +1,6 @@
 import Sidebar from "@/components/Sidebar";
 import TopNav from "@/components/TopNav";
+import RealtimeNotifications from "@/components/RealtimeNotifications";
 
 export default function AppLayout({
   children,
@@ -17,6 +18,7 @@ export default function AppLayout({
         <main className="flex-1 overflow-y-auto p-6 md:p-10">
           {children}
         </main>
+        <RealtimeNotifications />
       </div>
     </div>
   );
