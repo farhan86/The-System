@@ -1,65 +1,118 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
+type Mode = "login" | "signup";
 
 export default function LoginPage() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<Mode>("login");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: "success" | "info" } | null>(null);
+  const [focused, setFocused] = useState<string | null>(null);
+
+  const switchMode = (next: Mode) => {
+    if (next === mode) return;
+    setMessage(null);
+    setMode(next);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
-    await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 900));
     if (mode === "signup") {
-      setMessage({ text: "Registration submitted! You'll receive access once approved by the admin.", type: "success" });
+      setMessage({ text: "Request submitted. You'll receive access once the admin approves your account.", type: "success" });
     } else {
-      setMessage({ text: "Login integration will be wired in Phase 2.", type: "info" });
+      setMessage({ text: "Login backend wires up in Phase 2.", type: "info" });
     }
     setLoading(false);
   };
 
+  const inputBase: React.CSSProperties = {
+    width: "100%",
+    background: "rgba(10, 21, 67, 0.5)",
+    border: "1px solid rgba(138,43,226,0.2)",
+    borderRadius: "12px",
+    padding: "12px 16px",
+    color: "#f0f8ff",
+    fontSize: "14px",
+    outline: "none",
+    transition: "border-color 0.3s, box-shadow 0.3s",
+  };
+
+  const inputFocused: React.CSSProperties = {
+    borderColor: "rgba(138,43,226,0.8)",
+    boxShadow: "0 0 0 3px rgba(106,13,173,0.2), 0 0 20px rgba(138,43,226,0.15)",
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
 
-      {/* Animated ambient background orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(138,43,226,0.25) 0%, transparent 70%)", filter: "blur(60px)" }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(0,229,255,0.18) 0%, transparent 70%)", filter: "blur(60px)" }} />
-      <div className="absolute top-[40%] right-[20%] w-[300px] h-[300px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(138,43,226,0.1) 0%, transparent 70%)", filter: "blur(40px)", animation: "pulse 4s ease-in-out infinite" }} />
+      {/* Ambient orbs */}
+      <div style={{ position: "absolute", top: "-15%", left: "-10%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(106,13,173,0.3) 0%, transparent 65%)", filter: "blur(50px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "-15%", right: "-10%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(45,83,158,0.25) 0%, transparent 65%)", filter: "blur(50px)", pointerEvents: "none" }} />
+      <div className="ring-pulse" style={{ position: "absolute", top: "30%", right: "15%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(138,43,226,0.12) 0%, transparent 70%)", filter: "blur(30px)", pointerEvents: "none" }} />
 
-      <div className="w-full max-w-md px-6 z-10">
+      <div style={{ width: "100%", maxWidth: 420, padding: "0 24px", position: "relative", zIndex: 10 }}>
 
-        {/* Logo — force explicit colors to fix gradient rendering */}
-        <div className="text-center mb-10">
-          <h1 className="text-5xl font-extrabold tracking-tight pb-3 leading-tight">
-            <span className="text-white">The </span>
-            <span style={{ background: "linear-gradient(90deg, #8a2be2, #00e5ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              System
-            </span>
+        {/* ── Logo ── */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          style={{ textAlign: "center", marginBottom: 36 }}
+        >
+          <h1 style={{ fontSize: 52, fontWeight: 900, lineHeight: 1.1, letterSpacing: "-2px", margin: 0, paddingBottom: 4 }}>
+            <span style={{ color: "#f0f8ff" }}>The </span>
+            <span className="gradient-text">System</span>
           </h1>
-          <p className="text-white/35 text-xs mt-2 tracking-[0.3em] uppercase">Knowledge & Collaboration Hub</p>
-        </div>
+          <p style={{ color: "rgba(240,248,255,0.3)", fontSize: 10, letterSpacing: "0.35em", textTransform: "uppercase", marginTop: 8 }}>
+            Knowledge &amp; Collaboration Hub
+          </p>
+        </motion.div>
 
-        {/* Card with glow border */}
-        <div className="relative rounded-2xl p-[1px] overflow-hidden"
-          style={{ background: "linear-gradient(135deg, rgba(138,43,226,0.6), rgba(0,229,255,0.3), rgba(138,43,226,0.1))" }}>
-          <div className="rounded-2xl p-8 space-y-6" style={{ background: "rgba(10, 10, 20, 0.92)", backdropFilter: "blur(24px)" }}>
+        {/* ── Card ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+          style={{
+            borderRadius: 20,
+            padding: 1,
+            background: "linear-gradient(135deg, rgba(138,43,226,0.7) 0%, rgba(69,123,255,0.4) 50%, rgba(106,13,173,0.3) 100%)",
+            boxShadow: "0 0 60px rgba(106,13,173,0.25), 0 20px 60px rgba(0,0,0,0.5)",
+          }}
+        >
+          <div className="glass" style={{ borderRadius: 19, padding: 32 }}>
 
-            {/* Tab Toggle */}
-            <div className="flex rounded-xl p-1 gap-1" style={{ background: "rgba(255,255,255,0.05)" }}>
-              {(["login", "signup"] as const).map((tab) => (
+            {/* ── Tab Toggle ── */}
+            <div style={{ display: "flex", background: "rgba(10,10,15,0.6)", borderRadius: 12, padding: 4, gap: 4, marginBottom: 28, position: "relative" }}>
+              {/* Animated slider */}
+              <motion.div
+                layout
+                layoutId="tab-bg"
+                transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                style={{
+                  position: "absolute",
+                  top: 4, bottom: 4,
+                  left: mode === "login" ? 4 : "calc(50% + 2px)",
+                  width: "calc(50% - 6px)",
+                  borderRadius: 9,
+                  background: "linear-gradient(90deg, #6a0dad, #8a2be2)",
+                  boxShadow: "0 4px 20px rgba(138,43,226,0.5)",
+                }}
+              />
+              {(["login", "signup"] as Mode[]).map(tab => (
                 <button
                   key={tab}
-                  onClick={() => { setMode(tab); setMessage(null); }}
-                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-all duration-300 capitalize relative overflow-hidden"
+                  onClick={() => switchMode(tab)}
                   style={{
-                    background: mode === tab ? "linear-gradient(90deg, #8a2be2, #7c3aed)" : "transparent",
-                    color: mode === tab ? "#fff" : "rgba(255,255,255,0.35)",
-                    boxShadow: mode === tab ? "0 4px 20px rgba(138,43,226,0.4)" : "none",
-                    transform: mode === tab ? "scale(1.02)" : "scale(1)",
+                    flex: 1, padding: "10px 0", border: "none", background: "transparent", cursor: "pointer",
+                    fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", textTransform: "capitalize",
+                    color: mode === tab ? "#f0f8ff" : "rgba(240,248,255,0.35)",
+                    position: "relative", zIndex: 1,
+                    transition: "color 0.3s ease",
                   }}
                 >
                   {tab === "login" ? "Login" : "Sign Up"}
@@ -67,137 +120,120 @@ export default function LoginPage() {
               ))}
             </div>
 
-            {/* Form — animates when switching */}
-            <form onSubmit={handleSubmit} className="space-y-5" key={mode}>
-
-              {/* Name field fades in on signup */}
-              <div
-                style={{
-                  maxHeight: mode === "signup" ? "100px" : "0px",
-                  opacity: mode === "signup" ? 1 : 0,
-                  overflow: "hidden",
-                  transition: "max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease"
-                }}
+            {/* ── Form — AnimatePresence for slide transition ── */}
+            <AnimatePresence mode="wait">
+              <motion.form
+                key={mode}
+                initial={{ opacity: 0, x: mode === "signup" ? 30 : -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: mode === "signup" ? -30 : 30 }}
+                transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
+                onSubmit={handleSubmit}
+                style={{ display: "flex", flexDirection: "column", gap: 16 }}
               >
-                <label className="block text-[10px] font-semibold text-white/40 mb-1.5 tracking-[0.2em] uppercase">Full Name</label>
-                <input
-                  name="name"
-                  type="text"
-                  required={mode === "signup"}
-                  placeholder="Your name"
-                  className="w-full rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-300"
-                  style={{
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
-                  onFocus={e => {
-                    e.target.style.border = "1px solid rgba(138,43,226,0.7)";
-                    e.target.style.boxShadow = "0 0 20px rgba(138,43,226,0.2)";
-                  }}
-                  onBlur={e => {
-                    e.target.style.border = "1px solid rgba(255,255,255,0.08)";
-                    e.target.style.boxShadow = "none";
-                  }}
-                />
-              </div>
+                {/* Name field — only in signup */}
+                {mode === "signup" && (
+                  <div>
+                    <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: "rgba(240,248,255,0.4)", marginBottom: 6, letterSpacing: "0.2em", textTransform: "uppercase" }}>Full Name</label>
+                    <input
+                      name="name"
+                      type="text"
+                      required
+                      placeholder="Your name"
+                      style={{ ...inputBase, ...(focused === "name" ? inputFocused : {}) }}
+                      onFocus={() => setFocused("name")}
+                      onBlur={() => setFocused(null)}
+                    />
+                  </div>
+                )}
 
-              {/* Email */}
-              <div>
-                <label className="block text-[10px] font-semibold text-white/40 mb-1.5 tracking-[0.2em] uppercase">Email</label>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  className="w-full rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/20"
-                  style={{
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
-                  onFocus={e => {
-                    e.target.style.border = "1px solid rgba(138,43,226,0.7)";
-                    e.target.style.boxShadow = "0 0 20px rgba(138,43,226,0.2)";
-                  }}
-                  onBlur={e => {
-                    e.target.style.border = "1px solid rgba(255,255,255,0.08)";
-                    e.target.style.boxShadow = "none";
-                  }}
-                />
-              </div>
+                {/* Email */}
+                <div>
+                  <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: "rgba(240,248,255,0.4)", marginBottom: 6, letterSpacing: "0.2em", textTransform: "uppercase" }}>Email</label>
+                  <input
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="you@example.com"
+                    style={{ ...inputBase, ...(focused === "email" ? inputFocused : {}) }}
+                    onFocus={() => setFocused("email")}
+                    onBlur={() => setFocused(null)}
+                  />
+                </div>
 
-              {/* Password */}
-              <div>
-                <label className="block text-[10px] font-semibold text-white/40 mb-1.5 tracking-[0.2em] uppercase">Password</label>
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  className="w-full rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/25"
-                  style={{
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
-                  onFocus={e => {
-                    e.target.style.border = "1px solid rgba(0,229,255,0.7)";
-                    e.target.style.boxShadow = "0 0 20px rgba(0,229,255,0.15)";
-                  }}
-                  onBlur={e => {
-                    e.target.style.border = "1px solid rgba(255,255,255,0.08)";
-                    e.target.style.boxShadow = "none";
-                  }}
-                />
-              </div>
+                {/* Password */}
+                <div>
+                  <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: "rgba(240,248,255,0.4)", marginBottom: 6, letterSpacing: "0.2em", textTransform: "uppercase" }}>Password</label>
+                  <input
+                    name="password"
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    style={{ ...inputBase, ...(focused === "password" ? { ...inputFocused, borderColor: "rgba(69,123,255,0.8)", boxShadow: "0 0 0 3px rgba(45,83,158,0.2), 0 0 20px rgba(69,123,255,0.15)" } : {}) }}
+                    onFocus={() => setFocused("password")}
+                    onBlur={() => setFocused(null)}
+                  />
+                </div>
 
-              {/* Status message */}
-              {message && (
-                <div
-                  className="text-sm p-3.5 rounded-xl leading-relaxed"
+                {/* Status message */}
+                <AnimatePresence>
+                  {message && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: "auto", marginTop: 4 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25 }}
+                      style={{
+                        padding: "12px 14px", borderRadius: 10, fontSize: 13, lineHeight: 1.5,
+                        background: message.type === "success" ? "rgba(69,123,255,0.1)" : "rgba(138,43,226,0.1)",
+                        border: `1px solid ${message.type === "success" ? "rgba(69,123,255,0.35)" : "rgba(138,43,226,0.35)"}`,
+                        color: message.type === "success" ? "#6aabff" : "#b57aff",
+                      }}
+                    >
+                      {message.type === "success" ? "✅ " : "🔐 "}{message.text}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-monarch"
                   style={{
-                    background: message.type === "success" ? "rgba(0,229,255,0.08)" : "rgba(138,43,226,0.08)",
-                    border: `1px solid ${message.type === "success" ? "rgba(0,229,255,0.3)" : "rgba(138,43,226,0.3)"}`,
-                    color: message.type === "success" ? "#00e5ff" : "#b57aff",
+                    width: "100%", padding: "14px", borderRadius: 12, border: "none", cursor: loading ? "wait" : "pointer",
+                    fontWeight: 800, fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff",
+                    marginTop: 4, opacity: loading ? 0.7 : 1,
                   }}
                 >
-                  {message.type === "success" ? "✅ " : "🔐 "}{message.text}
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 rounded-xl font-bold text-white text-sm tracking-widest uppercase relative overflow-hidden transition-all duration-300 disabled:opacity-50"
-                style={{
-                  background: "linear-gradient(90deg, #8a2be2, #00e5ff)",
-                  boxShadow: "0 0 30px rgba(138,43,226,0.4)",
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 50px rgba(138,43,226,0.7), 0 0 20px rgba(0,229,255,0.3)";
-                  (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px) scale(1.01)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 30px rgba(138,43,226,0.4)";
-                  (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(1)";
-                }}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Processing...
-                  </span>
-                ) : mode === "login" ? "Enter The System" : "Request Access"}
-              </button>
-            </form>
+                  {loading ? (
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                      <span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
+                      Processing...
+                    </span>
+                  ) : mode === "login" ? "Enter The System" : "Request Access"}
+                </button>
+              </motion.form>
+            </AnimatePresence>
 
             {mode === "signup" && (
-              <p className="text-[11px] text-white/20 text-center leading-relaxed">
-                All sign-up requests require manual admin approval before access is granted.
-              </p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                style={{ fontSize: 11, color: "rgba(240,248,255,0.2)", textAlign: "center", marginTop: 16, lineHeight: 1.6 }}
+              >
+                All registrations require manual admin approval before access is granted.
+              </motion.p>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        input::placeholder { color: rgba(240,248,255,0.2); }
+      `}</style>
     </div>
   );
 }
