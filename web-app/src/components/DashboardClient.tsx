@@ -2,7 +2,7 @@
 import ProjectCreator from "@/components/ProjectCreator";
 import { useRouter } from "next/navigation";
 
-export default function DashboardClient({ firstName, stats, posts, PostCard, StatCard }: any) {
+export default function DashboardClient({ firstName, stats, posts, projects, PostCard, StatCard }: any) {
   const router = useRouter();
 
   return (
@@ -25,9 +25,10 @@ export default function DashboardClient({ firstName, stats, posts, PostCard, Sta
 
         {/* Stat Widgets */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-          <StatCard label="Total Posts"     value={stats.totalPosts   ?? 0} accent />
-          <StatCard label="Active Projects"  value={0} /> {/* We can update this once we have project stats */}
-          <StatCard label="Active Members"  value={stats.totalMembers ?? 0} />
+          <StatCard label="Total Posts"     value={stats.totalPosts     ?? 0} accent />
+          <StatCard label="Total Projects"  value={stats.totalProjects  ?? 0} />
+          <StatCard label="Pending Tasks"   value={stats.pendingTasks   ?? 0} />
+          <StatCard label="Active Members"  value={stats.totalMembers   ?? 0} />
         </div>
 
         {/* Recent Board Activity */}
@@ -61,9 +62,34 @@ export default function DashboardClient({ firstName, stats, posts, PostCard, Sta
         </div>
       </div>
 
-      {/* Sidebar - Project Creator */}
+      {/* Sidebar - Project Creator & List */}
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         <ProjectCreator onCreated={() => router.refresh()} />
+        
+        <div style={{
+          background: "rgba(14,12,28,0.6)", backdropFilter: "blur(20px)",
+          borderRadius: 16, padding: 20, border: "1px solid rgba(138,43,226,0.15)"
+        }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#f0f8ff", margin: "0 0 16px" }}>📁 Your Projects</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {projects.length === 0 ? (
+              <p style={{ color: "rgba(240,248,255,0.2)", fontSize: 12 }}>No projects yet.</p>
+            ) : (
+              projects.map((p: any) => (
+                <div key={p.id} style={{
+                  padding: "10px 14px", background: "rgba(255,255,255,0.03)", 
+                  borderRadius: 10, border: "1px solid rgba(255,255,255,0.05)"
+                }}>
+                  <div style={{ color: "#f0f8ff", fontSize: 13, fontWeight: 600 }}>{p.name}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+                    <span style={{ fontSize: 10, color: p.status === 'Completed' ? '#22c55e' : '#457bff' }}>● {p.status}</span>
+                    <span style={{ fontSize: 10, color: "rgba(240,248,255,0.2)" }}>{p.end_date}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
