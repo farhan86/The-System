@@ -1,12 +1,44 @@
-# The System
+# The System 🌌
+**Advanced Project Management & Knowledge Base**
 
-A highly collaborative knowledge-sharing platform emphasizing asynchronous document sharing and real-time synchronization.
+"The System" is a premium, real-time project management tool designed with a sleek "Shadow Monarch" aesthetic. It combines knowledge sharing, task management, and real-time communication into a single, cohesive experience.
 
-## Features Array
-- **Interactive Knowledge Board:** Upload your deep dive documents directly to external Blob Storage.
-- **Real-time Live Chat:** WebSockets driven instant team corridor. 
+## 🚀 Core Features
 
-## Test Cases (Phase 1 Status: Passed)
-1. **Next.js Scaffolding:** `npm run build` succeeds beautifully with `0` type errors.
-2. **UI Fixing:** Theme follows a "Solo Leveling" inspired Dark aesthetic (Abyss black, neon purple, cyan). Fully responsive with visually centered UI blocks.
-3. **Git Isolation:** Environment variables securely isolated and stripped from standard tracking.
+### 1. Knowledge Board 📚
+*   **Persistent Insights**: Share research, code snippets, and ideas.
+*   **Project Linking**: Categorize knowledge by specific projects.
+*   **Attachments**: Upload files directly to Interserver via secure FTP streaming.
+*   **Real-time Refresh**: The feed updates instantly when others post.
+
+### 2. Kanban Task Management ✅
+*   **Drag & Drop Flow**: Move tasks from "To Do" to "In Progress" to "Done".
+*   **Project-Specific Boards**: Filter tasks by project to stay focused.
+*   **Team Assignments**: Assign tasks to specific members.
+
+### 3. Project Timeline (Gantt Chart) 📅
+*   **Visual Roadmap**: See all project durations and status at a glance.
+*   **Dynamic Scaling**: The timeline automatically adjusts to fit your project dates.
+*   **Status Tracking**: Visual progress indicators for active vs completed projects.
+
+### 4. Real-time Communication 💬
+*   **Live Chat**: Instant messaging for the whole team.
+*   **Site-wide Notifications**: Get toasted alerts for new posts and messages regardless of which page you're on.
+
+### 5. Admin Control 🛡️
+*   **Access Management**: Approve new signups via a secure terminal.
+*   **System Stats**: Real-time dashboard widgets for team activity and task efficiency.
+
+## 🛠️ Technical Stack
+*   **Frontend**: Next.js 16 (App Router), Turbopack, Framer Motion.
+*   **Backend**: PHP PDO Database Bridge (Secured with Secret Keys).
+*   **Real-time**: Pusher Channels.
+*   **Storage**: FTP Streaming to remote Linux server.
+*   **Authentication**: NextAuth.js.
+
+## 📁 Repository Structure
+*   `web-app/`: The Next.js frontend and API.
+*   `server/`: The PHP Database Bridge and SQL schemas.
+
+---
+*Created by Farhan Ahmed & Antigravity AI.*
