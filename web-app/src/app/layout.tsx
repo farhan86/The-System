@@ -1,3 +1,4 @@
+import Providers from "@/components/Providers";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -16,8 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen bg-[--color-background] text-[--color-foreground] antialiased selection:bg-[--color-primary]/30 selection:text-white`}>
-        {children}
+      <body className={`${inter.className} min-h-screen antialiased`}>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

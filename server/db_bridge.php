@@ -79,6 +79,23 @@ if ($action === 'login') {
         http_response_code(500);
         echo json_encode(["message" => "Registration failed."]);
     }
+} elseif ($action === 'get_posts') {
+    $limit = intval($inputData['limit'] ?? 10);
+    $stmt = $pdo->prepare(
+        "SELECT p.id, p.title, p.content, p.created_at, u.name as author_name
+         FROM posts p
+         JOIN users u ON p.author_id = u.id
+         ORDER BY p.created_at DESC
+         LIMIT ?"
+    );
+    $stmt->execute([$limit]);
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+
+} elseif ($action === 'get_stats') {
+    $postCount = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
+    $memberCount = $pdo->query("SELECT COUNT(*) FROM users WHERE is_approved = 1")->fetchColumn();
+    echo json_encode(["totalPosts" => intval($postCount), "totalMembers" => intval($memberCount)]);
+
 } else {
     http_response_code(400);
     echo json_encode(["message" => "Action undefined"]);
