@@ -1,39 +1,116 @@
-export default function Home() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] animate-in fade-in zoom-in duration-700">
-      <div className="text-center max-w-3xl space-y-8">
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 pb-2 leading-tight text-glow">
-          The <span className="text-transparent bg-clip-text bg-gradient-to-r from-[--color-primary] to-[--color-secondary]">System</span>
-        </h1>
-        
-        <p className="text-xl text-white/50 font-light leading-relaxed">
-          The central hub for our team to share insights, upload documents, and discuss AI concepts synchronously and asynchronously.
-        </p>
+"use client";
+import { useState } from "react";
 
-        <div className="flex items-center justify-center gap-6 mt-12">
-          <button className="px-8 py-4 rounded-full bg-white text-black font-semibold text-lg hover:scale-105 active:scale-95 transition-transform shadow-[0_0_40px_rgba(138,43,226,0.3)]">
-            Explore Board
-          </button>
-          
-          {/* Using visual absolute centering for the Live Chat button */}
-          <button className="relative w-48 py-4 rounded-full glass-panel glass-panel-hover text-white font-semibold flex items-center justify-center overflow-hidden group">
-            <span className="absolute left-6 flex h-3 w-3 group-hover:scale-110 transition-transform">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[--color-secondary] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-[--color-secondary]"></span>
-            </span>
-            Live Chat
-          </button>
+export default function LoginPage() {
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+    const formData = new FormData(e.currentTarget);
+
+    if (mode === "signup") {
+      // Signup: user is created with is_approved=false, pending admin review
+      setMessage("✅ Registration submitted! You'll receive access once approved by the admin.");
+    } else {
+      // Login — will wire up to NextAuth signIn() in Phase 2
+      setMessage("🔐 Login integration coming in Phase 2.");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Ambient glow orbs */}
+      <div className="absolute top-1/4 -left-40 w-96 h-96 rounded-full bg-[--color-primary] opacity-10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-40 w-96 h-96 rounded-full bg-[--color-secondary] opacity-10 blur-3xl pointer-events-none" />
+
+      <div className="w-full max-w-md px-6 z-10">
+        {/* Logo */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold tracking-tight pb-2 leading-tight">
+            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-[--color-primary] to-[--color-secondary]">System</span>
+          </h1>
+          <p className="text-white/40 text-sm mt-2 tracking-widest uppercase">Knowledge & Collaboration Hub</p>
         </div>
 
-        <div className="mt-28 grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-           <div className="glass-panel p-8 glass-panel-hover cursor-default group">
-             <h3 className="text-xl font-semibold mb-3 text-white/90 group-hover:text-[--color-secondary] transition-colors">Deep Documentation</h3>
-             <p className="text-sm text-white/40 leading-relaxed">Create rich-text posts attached with raw files and PDF documents directly to interserver storage.</p>
-           </div>
-           <div className="glass-panel p-8 glass-panel-hover cursor-default group">
-             <h3 className="text-xl font-semibold mb-3 text-white/90 group-hover:text-[--color-secondary] transition-colors">Instant Chatting</h3>
-             <p className="text-sm text-white/40 leading-relaxed">Hop over to the real-time chat corridor powered by Pusher websockets for immediate idea bouncing.</p>
-           </div>
+        {/* Card */}
+        <div className="glass-panel p-8 space-y-6">
+          {/* Tab Toggle */}
+          <div className="flex rounded-lg bg-[--color-muted] p-1 gap-1">
+            <button
+              onClick={() => { setMode("login"); setMessage(null); }}
+              className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${mode === "login" ? "bg-[--color-primary] text-white shadow-lg" : "text-white/40 hover:text-white"}`}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => { setMode("signup"); setMessage(null); }}
+              className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${mode === "signup" ? "bg-[--color-primary] text-white shadow-lg" : "text-white/40 hover:text-white"}`}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === "signup" && (
+              <div>
+                <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-widest">Full Name</label>
+                <input
+                  name="name"
+                  type="text"
+                  required
+                  placeholder="Your name"
+                  className="w-full bg-[--color-muted] border border-[--color-border] rounded-lg px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-[--color-primary] transition-colors"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-widest">Email</label>
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="you@example.com"
+                className="w-full bg-[--color-muted] border border-[--color-border] rounded-lg px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-[--color-primary] transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-widest">Password</label>
+              <input
+                name="password"
+                type="password"
+                required
+                placeholder="••••••••"
+                className="w-full bg-[--color-muted] border border-[--color-border] rounded-lg px-4 py-3 text-white placeholder-white/25 focus:outline-none focus:border-[--color-primary] transition-colors"
+              />
+            </div>
+
+            {message && (
+              <p className={`text-sm p-3 rounded-lg ${message.startsWith("✅") ? "bg-[--color-secondary]/10 text-[--color-secondary]" : "bg-[--color-primary]/10 text-[--color-primary]"}`}>
+                {message}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-[--color-primary] to-[--color-secondary] hover:opacity-90 active:scale-95 transition-all shadow-[0_0_20px_rgba(138,43,226,0.3)] disabled:opacity-50"
+            >
+              {loading ? "Processing..." : mode === "login" ? "Enter The System" : "Request Access"}
+            </button>
+          </form>
+
+          {mode === "signup" && (
+            <p className="text-xs text-white/30 text-center leading-relaxed">
+              Sign-up requests require admin approval before access is granted.
+            </p>
+          )}
         </div>
       </div>
     </div>

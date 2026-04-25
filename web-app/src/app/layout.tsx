@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "The System",
-  description: "Collaborative knowledge sharing platform",
+  description: "Collaborative AI Knowledge & Chat Hub",
 };
 
 export default function RootLayout({
@@ -16,14 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen relative selection:bg-[--color-primary]/30 selection:text-white`}>
-        {/* Navigation Sidebar/Top bar structure can stay in the layout component */}
-        <div className="flex h-screen overflow-hidden">
-          {/* Main content wrapper */}
-          <main className="flex-1 overflow-y-auto relative z-10 p-6 md:p-10">
-            {children}
-          </main>
-        </div>
+      <body className={`${inter.className} min-h-screen bg-[--color-background] text-[--color-foreground] antialiased selection:bg-[--color-primary]/30 selection:text-white`}>
+        {children}
       </body>
     </html>
   );
