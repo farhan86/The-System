@@ -103,7 +103,6 @@ if ($action === 'login') {
     $stmt->execute([$limit]);
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Fetch attachments for each post
     $attStmt = $pdo->prepare("SELECT post_id, file_url, orig_filename FROM attachments WHERE post_id = ?");
     foreach ($posts as &$post) {
         $attStmt->execute([$post['id']]);
@@ -112,10 +111,10 @@ if ($action === 'login') {
     echo json_encode($posts);
 
 } elseif ($action === 'create_post') {
-    $authorId    = intval($inputData['author_id'] ?? 0);
-    $title       = trim($inputData['title'] ?? '');
-    $content     = trim($inputData['content'] ?? '');
-    $fileUrl     = $inputData['file_url'] ?? null;
+    $authorId     = intval($inputData['author_id'] ?? 0);
+    $title        = trim($inputData['title'] ?? '');
+    $content      = trim($inputData['content'] ?? '');
+    $fileUrl      = $inputData['file_url'] ?? null;
     $origFilename = $inputData['orig_filename'] ?? null;
 
     if (!$authorId || !$title || !$content) {
@@ -143,7 +142,7 @@ if ($action === 'login') {
     }
 
 } elseif ($action === 'get_stats') {
-    $postCount = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
+    $postCount   = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
     $memberCount = $pdo->query("SELECT COUNT(*) FROM users WHERE is_approved = 1")->fetchColumn();
     echo json_encode(["totalPosts" => intval($postCount), "totalMembers" => intval($memberCount)]);
 

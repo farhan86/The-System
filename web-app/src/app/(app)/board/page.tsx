@@ -59,22 +59,16 @@ function PostCard({ post }: { post: Post }) {
         {post.content}
       </p>
 
-      {/* Attachments */}
       {post.attachments && post.attachments.length > 0 && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
           {post.attachments.map((att, i) => (
-            <a
-              key={i}
-              href={att.file_url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <a key={i} href={att.file_url} target="_blank" rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
               style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "5px 12px", borderRadius: 8, textDecoration: "none",
                 background: "rgba(69,123,255,0.1)", border: "1px solid rgba(69,123,255,0.3)",
-                color: "#6aabff", fontSize: 12, fontWeight: 600,
-                transition: "all 0.2s",
+                color: "#6aabff", fontSize: 12, fontWeight: 600, transition: "all 0.2s",
               }}
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "rgba(69,123,255,0.2)"}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "rgba(69,123,255,0.1)"}
@@ -85,7 +79,6 @@ function PostCard({ post }: { post: Post }) {
         </div>
       )}
 
-      {/* Author */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <div style={{
           width: 26, height: 26, borderRadius: "50%",
@@ -97,7 +90,7 @@ function PostCard({ post }: { post: Post }) {
         </div>
         <span style={{ fontSize: 12, color: "rgba(240,248,255,0.4)", fontWeight: 600 }}>{post.author_name}</span>
         <span style={{ fontSize: 11, color: "rgba(240,248,255,0.2)", marginLeft: "auto" }}>
-          {expanded ? "Click to collapse ▲" : "Click to expand ▼"}
+          {expanded ? "▲ Collapse" : "▼ Expand"}
         </span>
       </div>
     </motion.div>
@@ -113,13 +106,11 @@ function Composer({ onPosted }: { onPosted: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const reset = () => { setOpen(false); setError(null); setTitle(""); setContent(""); setFile(null); };
+
   const submit = async () => {
-    if (!title.trim() || !content.trim()) {
-      setError("Title and content are both required.");
-      return;
-    }
-    setLoading(true);
-    setError(null);
+    if (!title.trim() || !content.trim()) { setError("Title and content are both required."); return; }
+    setLoading(true); setError(null);
     try {
       const fd = new FormData();
       fd.append("title", title);
@@ -129,8 +120,7 @@ function Composer({ onPosted }: { onPosted: () => void }) {
       const res = await fetch("/api/board", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-
-      setTitle(""); setContent(""); setFile(null); setOpen(false);
+      reset();
       onPosted();
     } catch (e: any) {
       setError(e.message || "Failed to create post");
@@ -139,12 +129,18 @@ function Composer({ onPosted }: { onPosted: () => void }) {
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%", background: "rgba(10,21,67,0.4)",
+    borderWidth: 1, borderStyle: "solid", borderColor: "rgba(138,43,226,0.2)",
+    borderRadius: 10, padding: "10px 14px", color: "#f0f8ff",
+    fontSize: 14, outline: "none", boxSizing: "border-box",
+  };
+
   return (
     <div style={{ marginBottom: 32 }}>
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {!open ? (
-          <motion.button
-            key="open-btn"
+          <motion.button key="open-btn"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setOpen(true)}
             style={{
@@ -154,24 +150,15 @@ function Composer({ onPosted }: { onPosted: () => void }) {
               color: "rgba(240,248,255,0.4)", fontSize: 14, cursor: "pointer",
               textAlign: "left", transition: "all 0.25s",
             }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.7)";
-              (e.currentTarget as HTMLElement).style.color = "#f0f8ff";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.35)";
-              (e.currentTarget as HTMLElement).style.color = "rgba(240,248,255,0.4)";
-            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.7)"; (e.currentTarget as HTMLElement).style.color = "#f0f8ff"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.35)"; (e.currentTarget as HTMLElement).style.color = "rgba(240,248,255,0.4)"; }}
           >
             ✏️ &nbsp; Share knowledge with the team...
           </motion.button>
         ) : (
-          <motion.div
-            key="composer"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+          <motion.div key="composer"
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
             style={{
               background: "rgba(14,12,28,0.85)", backdropFilter: "blur(24px)",
               borderRadius: 16, padding: 24,
@@ -181,65 +168,32 @@ function Composer({ onPosted }: { onPosted: () => void }) {
           >
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "#f0f8ff", margin: "0 0 18px" }}>New Knowledge Post</h3>
 
-            {/* Title */}
-            <input
-              value={title}
-              onChange={e => setTitle(e.target.value)}
+            <input value={title} onChange={e => setTitle(e.target.value)}
               placeholder="Post title..."
-              style={{
-                width: "100%", background: "rgba(10,21,67,0.4)",
-                borderWidth: 1, borderStyle: "solid", borderColor: "rgba(138,43,226,0.2)",
-                borderRadius: 10, padding: "10px 14px", color: "#f0f8ff",
-                fontSize: 14, outline: "none", boxSizing: "border-box", marginBottom: 12,
-              }}
+              style={{ ...inputStyle, marginBottom: 12 }}
               onFocus={e => (e.target.style.borderColor = "rgba(138,43,226,0.7)")}
               onBlur={e => (e.target.style.borderColor = "rgba(138,43,226,0.2)")}
             />
 
-            {/* Content */}
-            <textarea
-              value={content}
-              onChange={e => setContent(e.target.value)}
+            <textarea value={content} onChange={e => setContent(e.target.value)}
               placeholder="Share your insights, findings, or ideas..."
               rows={5}
-              style={{
-                width: "100%", background: "rgba(10,21,67,0.4)",
-                borderWidth: 1, borderStyle: "solid", borderColor: "rgba(138,43,226,0.2)",
-                borderRadius: 10, padding: "10px 14px", color: "#f0f8ff",
-                fontSize: 14, outline: "none", resize: "vertical",
-                boxSizing: "border-box", marginBottom: 12, lineHeight: 1.6,
-                fontFamily: "inherit",
-              }}
+              style={{ ...inputStyle, resize: "vertical", marginBottom: 12, lineHeight: "1.6", fontFamily: "inherit" }}
               onFocus={e => (e.target.style.borderColor = "rgba(138,43,226,0.7)")}
               onBlur={e => (e.target.style.borderColor = "rgba(138,43,226,0.2)")}
             />
 
-            {/* File attachment */}
             <div style={{ marginBottom: 16 }}>
-              <input
-                ref={fileRef}
-                type="file"
-                style={{ display: "none" }}
-                onChange={e => setFile(e.target.files?.[0] ?? null)}
-              />
-              <button
-                onClick={() => fileRef.current?.click()}
-                style={{
-                  padding: "7px 16px", borderRadius: 8, cursor: "pointer",
-                  background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-                  color: "rgba(240,248,255,0.5)", fontSize: 12, fontWeight: 600,
-                  transition: "all 0.2s",
-                }}
+              <input ref={fileRef} type="file" style={{ display: "none" }} onChange={e => setFile(e.target.files?.[0] ?? null)} />
+              <button onClick={() => fileRef.current?.click()}
+                style={{ padding: "7px 16px", borderRadius: 8, cursor: "pointer", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,248,255,0.5)", fontSize: 12, fontWeight: 600 }}
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)"}
                 onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"}
               >
                 📎 {file ? file.name : "Attach a file"}
               </button>
               {file && (
-                <button
-                  onClick={() => setFile(null)}
-                  style={{ marginLeft: 8, background: "none", border: "none", cursor: "pointer", color: "rgba(251,113,133,0.6)", fontSize: 12 }}
-                >
+                <button onClick={() => setFile(null)} style={{ marginLeft: 8, background: "none", border: "none", cursor: "pointer", color: "rgba(251,113,133,0.6)", fontSize: 12 }}>
                   ✕ Remove
                 </button>
               )}
@@ -251,28 +205,17 @@ function Composer({ onPosted }: { onPosted: () => void }) {
               </p>
             )}
 
-            {/* Actions */}
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button
-                onClick={() => { setOpen(false); setError(null); setTitle(""); setContent(""); setFile(null); }}
-                style={{
-                  padding: "9px 20px", borderRadius: 9, cursor: "pointer",
-                  background: "transparent", border: "1px solid rgba(255,255,255,0.1)",
-                  color: "rgba(240,248,255,0.4)", fontSize: 13, fontWeight: 600,
-                }}
-              >
+              <button onClick={reset}
+                style={{ padding: "9px 20px", borderRadius: 9, cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,248,255,0.4)", fontSize: 13, fontWeight: 600 }}>
                 Cancel
               </button>
-              <button
-                onClick={submit}
-                disabled={loading}
+              <button onClick={submit} disabled={loading}
                 style={{
                   padding: "9px 24px", borderRadius: 9, cursor: loading ? "wait" : "pointer",
                   background: "linear-gradient(90deg, #6a0dad, #8a2be2)",
                   border: "none", color: "#fff", fontSize: 13, fontWeight: 700,
-                  opacity: loading ? 0.7 : 1,
-                  boxShadow: "0 0 20px rgba(138,43,226,0.4)",
-                  transition: "opacity 0.2s, box-shadow 0.2s",
+                  opacity: loading ? 0.7 : 1, boxShadow: "0 0 20px rgba(138,43,226,0.4)", transition: "opacity 0.2s, box-shadow 0.2s",
                 }}
                 onMouseEnter={e => !loading && ((e.currentTarget as HTMLElement).style.boxShadow = "0 0 35px rgba(138,43,226,0.7)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.boxShadow = "0 0 20px rgba(138,43,226,0.4)")}
@@ -297,18 +240,14 @@ export default function BoardPage() {
       const res = await fetch("/api/board");
       const data = await res.json();
       setPosts(Array.isArray(data) ? data : []);
-    } catch {
-      setPosts([]);
-    } finally {
-      setLoading(false);
-    }
+    } catch { setPosts([]); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => { fetchPosts(); }, []);
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto" }}>
-      {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <h2 style={{ fontSize: 30, fontWeight: 800, color: "#f0f8ff", margin: 0 }}>
           Knowledge <span style={{ color: "#457bff", textShadow: "0 0 20px rgba(69,123,255,0.4)" }}>Board</span>
@@ -318,26 +257,17 @@ export default function BoardPage() {
         </p>
       </div>
 
-      {/* Composer */}
       <Composer onPosted={fetchPosts} />
 
-      {/* Feed */}
       {loading ? (
         <div style={{ textAlign: "center", padding: 60 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: "50%", margin: "0 auto",
-            border: "3px solid rgba(138,43,226,0.2)", borderTopColor: "#8a2be2",
-            animation: "spin 0.8s linear infinite",
-          }} />
+          <div style={{ width: 36, height: 36, borderRadius: "50%", margin: "0 auto", border: "3px solid rgba(138,43,226,0.2)", borderTopColor: "#8a2be2", animation: "spin 0.8s linear infinite" }} />
           <p style={{ color: "rgba(240,248,255,0.25)", marginTop: 16, fontSize: 13 }}>Loading posts...</p>
         </div>
       ) : posts.length === 0 ? (
-        <div style={{
-          padding: 60, borderRadius: 16, textAlign: "center",
-          background: "rgba(14,12,28,0.4)", border: "1px dashed rgba(138,43,226,0.2)",
-        }}>
+        <div style={{ padding: 60, borderRadius: 16, textAlign: "center", background: "rgba(14,12,28,0.4)", border: "1px dashed rgba(138,43,226,0.2)" }}>
           <p style={{ fontSize: 32, marginBottom: 12 }}>📚</p>
-          <p style={{ color: "rgba(240,248,255,0.3)", fontSize: 15 }}>No posts yet.</p>
+          <p style={{ color: "rgba(240,248,255,0.3)", fontSize: 15, margin: 0 }}>No posts yet.</p>
           <p style={{ color: "rgba(240,248,255,0.2)", fontSize: 13 }}>Be the first to share knowledge with the team!</p>
         </div>
       ) : (
@@ -348,7 +278,6 @@ export default function BoardPage() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        textarea { font-family: inherit; }
         ::placeholder { color: rgba(240,248,255,0.2) !important; }
       `}</style>
     </div>
