@@ -5,7 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // Define your bridge secret in a secure location on the server (matches BRIDGE_SECRET in Vercel .env)
-$EXPECTED_SECRET = '348Tj1lCr906$slw';
+$EXPECTED_SECRET = '348Tj1lCr906!slw';
 
 // Receive Next.js Vercel payload
 $inputData = json_decode(file_get_contents("php://input"), true);
@@ -72,7 +72,7 @@ if ($action === 'login') {
 
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
     $insertStmt = $pdo->prepare("INSERT INTO users (name, email, password, is_approved) VALUES (?, ?, ?, 0)");
-    
+
     if ($insertStmt->execute([$name, $email, $hashedPassword])) {
         echo json_encode(["message" => "Registration successful. Pending admin approval."]);
     } else {
