@@ -7,6 +7,7 @@ const navItems = [
   { href: "/activity",  icon: "🔔", label: "Activity" },
   { href: "/board",     icon: "📝", label: "Board" },
   { href: "/chat",      icon: "💬", label: "Live Chat" },
+  { href: "/admin",     icon: "🛡️", label: "Admin" },
 ];
 
 export default function Sidebar() {
