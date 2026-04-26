@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 interface Project {
   id: number;
@@ -177,6 +177,7 @@ function Composer({ projects, onPosted }: { projects: Project[], onPosted: () =>
 }
 
 function BoardContent() {
+  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [filterProject, setFilterProject] = useState("");
@@ -188,11 +189,11 @@ function BoardContent() {
     if (highlightId) {
       // Clear the highlighted post ID from URL after it's been processed
       const timer = setTimeout(() => {
-        window.history.replaceState({}, '', '/board');
+        router.replace('/board', { scroll: false });
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [highlightId]);
+  }, [highlightId, router]);
 
   const fetchProjects = async () => {
     const res = await fetch("/api/projects");
