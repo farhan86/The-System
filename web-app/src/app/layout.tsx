@@ -13,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body style={{ fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif", minHeight: "100vh" }}>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className="dark" style={{ fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif", minHeight: "100vh" }}>
         <Providers>
           {children}
         </Providers>
