@@ -104,7 +104,7 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
                 className="bg-transparent text-[10px] font-black text-[#457bff] uppercase border-none outline-none cursor-pointer hover:text-white transition-colors"
               >
                 <option value="all">Global System</option>
-                {projects.map((p: any) => (
+                {projects.filter((p: any) => p.status !== "Completed").map((p: any) => (
                   <option key={p.id} value={p.id.toString()}>{p.name}</option>
                 ))}
               </select>
