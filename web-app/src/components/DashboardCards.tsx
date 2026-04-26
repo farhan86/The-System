@@ -3,45 +3,29 @@ import Link from "next/link";
 
 export function StatCard({ label, value, accent, href }: { label: string; value: number; accent?: boolean, href?: string }) {
   const content = (
-    <div
-      style={{
-        background: "rgba(14,12,28,0.7)",
-        backdropFilter: "blur(20px)",
-        borderRadius: 16,
-        padding: 24,
-        border: "1px solid rgba(138,43,226,0.15)",
-        transition: "border-color 0.3s, transform 0.2s",
-        cursor: href ? "pointer" : "default",
-        height: "100%",
-      }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.4)";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.15)";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-      }}
-    >
-      <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(240,248,255,0.35)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 10 }}>
+    <div className="bg-[#0a0a14]/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/5 transition-all cursor-pointer hover:border-[#457bff]/30 hover:-translate-y-1 group">
+      <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-4 group-hover:text-white/40 transition-colors">
         {label}
       </p>
-      <p style={{
-        fontSize: 44, fontWeight: 900, margin: 0,
-        color: accent ? "#457bff" : "#f0f8ff",
-        textShadow: accent ? "0 0 20px rgba(69,123,255,0.5)" : "none",
-      }}>
-        {value}
-      </p>
+      <div className="flex items-end justify-between">
+        <p className={`text-4xl font-black m-0 leading-none tracking-tighter ${accent ? "text-[#457bff] [text-shadow:0_0_20px_rgba(69,123,255,0.4)]" : "text-white"}`}>
+          {value}
+        </p>
+        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+           <span className="text-[#457bff] text-lg">→</span>
+        </div>
+      </div>
     </div>
   );
 
-  return href ? <Link href={href} style={{ textDecoration: "none" }}>{content}</Link> : content;
+  return href ? <Link href={href} className="no-underline">{content}</Link> : content;
 }
 
 export function PostCard({ post }: { post: any }) {
   function timeAgo(dateStr: string) {
-    const diff = Date.now() - new Date(dateStr).getTime();
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "recently";
+    const diff = Date.now() - date.getTime();
     const m = Math.floor(diff / 60000);
     if (m < 60) return `${m}m ago`;
     const h = Math.floor(m / 60);
@@ -50,53 +34,26 @@ export function PostCard({ post }: { post: any }) {
   }
 
   return (
-    <div
-      style={{
-        background: "rgba(14,12,28,0.7)",
-        backdropFilter: "blur(20px)",
-        borderRadius: 14,
-        padding: 20,
-        cursor: "pointer",
-        border: "1px solid rgba(138,43,226,0.12)",
-        transition: "border-color 0.3s, transform 0.2s",
-      }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.35)";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,43,226,0.12)";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+    <div className="bg-[#0a0a14]/40 backdrop-blur-xl rounded-xl p-5 border border-white/5 transition-all cursor-pointer hover:border-[#8a2be2]/30 hover:-translate-y-0.5 group">
+      <div className="flex justify-between items-start mb-3">
         <div>
-          <h4 style={{ fontWeight: 700, fontSize: 15, color: "#f0f8ff", margin: 0 }}>{post.title}</h4>
+          <h4 className="font-bold text-sm text-[#f0f8ff] m-0 group-hover:text-[#457bff] transition-colors">{post.title}</h4>
           {post.project_name && (
-            <span style={{ fontSize: 9, color: "#457bff", fontWeight: 700, textTransform: "uppercase", marginTop: 2, display: "block" }}>
+            <span className="text-[9px] text-[#457bff] font-black uppercase tracking-tighter mt-1 block opacity-60">
               {post.project_name}
             </span>
           )}
         </div>
-        <span style={{ fontSize: 11, color: "rgba(240,248,255,0.25)", flexShrink: 0, marginLeft: 12 }}>{timeAgo(post.created_at)}</span>
+        <span className="text-[10px] text-white/20 font-bold ml-4">{timeAgo(post.created_at)}</span>
       </div>
-      <p style={{
-        fontSize: 13, color: "rgba(240,248,255,0.4)", margin: "0 0 12px 0",
-        overflow: "hidden", display: "-webkit-box",
-        WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
-      }}>
+      <p className="text-[12px] text-white/40 leading-relaxed mb-4 line-clamp-2">
         {post.content}
       </p>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{
-          width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
-          background: "linear-gradient(135deg, #6a0dad, #457bff)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 10, fontWeight: 800, color: "#fff",
-        }}>
+      <div className="flex items-center gap-2.5 border-t border-white/5 pt-3">
+        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#6a0dad] to-[#457bff] flex items-center justify-center text-[9px] font-black text-white border border-white/10">
           {post.author_name?.[0]?.toUpperCase() ?? "?"}
         </div>
-        <span style={{ fontSize: 12, color: "rgba(240,248,255,0.45)" }}>{post.author_name}</span>
+        <span className="text-[11px] text-white/30 font-bold">{post.author_name}</span>
       </div>
     </div>
   );
