@@ -17,10 +17,15 @@ export default function RealtimeNotifications() {
       // @ts-ignore
       const PClient = PusherJS.default || PusherJS;
 
-      pusher = new PClient(
-        process.env.NEXT_PUBLIC_PUSHER_KEY!,
-        { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER! }
-      );
+      const key = process.env.NEXT_PUBLIC_PUSHER_KEY;
+      const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+
+      if (!key || !cluster) {
+        console.warn("Pusher keys missing. Notifications disabled.");
+        return;
+      }
+
+      pusher = new PClient(key, { cluster });
 
       const channel = pusher.subscribe("chat-channel");
       

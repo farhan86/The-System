@@ -33,8 +33,9 @@ export function PostCard({ post }: { post: any }) {
     return `${Math.floor(h / 24)}d ago`;
   }
 
+  const postId = post.id || post.post_id || post.ID;
   return (
-    <Link href={`/board?postId=${post.id}`} className="no-underline block">
+    <Link href={`/board?postId=${postId}`} className="no-underline block">
       <div className="bg-[#0a0a14]/40 backdrop-blur-xl rounded-xl p-5 border border-white/5 transition-all cursor-pointer hover:border-[#8a2be2]/30 hover:-translate-y-0.5 group">
         <div className="flex justify-between items-start mb-3">
           <div>
