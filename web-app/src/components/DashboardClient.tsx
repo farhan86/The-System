@@ -8,6 +8,7 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
   const router = useRouter();
   const [projectFilter, setProjectFilter] = useState("Active");
   const [efficiencyProjectId, setEfficiencyProjectId] = useState<string>("all");
+  const [showEffDropdown, setShowEffDropdown] = useState(false);
 
   const filteredProjects = projects.filter((p: any) => {
     if (projectFilter === "All") return true;
@@ -98,16 +99,53 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
                 <div className="w-1.5 h-4 bg-[#457bff] rounded-full" />
                 Performance
               </h3>
-              <select 
-                value={efficiencyProjectId} 
-                onChange={(e) => setEfficiencyProjectId(e.target.value)}
-                className="bg-transparent text-[10px] font-black text-[#457bff] uppercase border-none outline-none cursor-pointer hover:text-white transition-colors"
-              >
-                <option value="all">Global System</option>
-                {projects.filter((p: any) => p.status !== "Completed").map((p: any) => (
-                  <option key={p.id} value={p.id.toString()}>{p.name}</option>
-                ))}
-              </select>
+              
+              <div className="relative">
+                <button 
+                  onClick={() => setShowEffDropdown(!showEffDropdown)}
+                  className="flex items-center gap-1.5 text-[10px] font-black text-[#457bff] uppercase hover:text-white transition-all group"
+                >
+                  <span className="tracking-widest">
+                    {efficiencyProjectId === "all" ? "Global System" : projects.find((p: any) => p.id.toString() === efficiencyProjectId)?.name}
+                  </span>
+                  <span className={`text-[8px] transition-transform duration-300 ${showEffDropdown ? 'rotate-180 text-white' : 'text-[#457bff]/40 group-hover:text-[#457bff]'}`}>
+                    {showEffDropdown ? "▲" : "▼"}
+                  </span>
+                </button>
+                
+                <AnimatePresence>
+                  {showEffDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-[100]" onClick={() => setShowEffDropdown(false)} />
+                      <motion.div 
+                        initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                        className="absolute right-0 top-full mt-3 w-52 bg-[#0e0c1c]/95 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[101]"
+                      >
+                        <div className="max-h-60 overflow-y-auto no-scrollbar p-1.5">
+                          <button 
+                            onClick={() => { setEfficiencyProjectId("all"); setShowEffDropdown(false); }}
+                            className={`w-full text-left px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${efficiencyProjectId === "all" ? 'text-[#457bff] bg-[#457bff]/10' : 'text-white/30 hover:text-white hover:bg-white/5'}`}
+                          >
+                            Global System
+                          </button>
+                          <div className="h-px bg-white/5 my-1 mx-2" />
+                          {projects.filter((p: any) => p.status !== "Completed").map((p: any) => (
+                            <button 
+                              key={p.id}
+                              onClick={() => { setEfficiencyProjectId(p.id.toString()); setShowEffDropdown(false); }}
+                              className={`w-full text-left px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${efficiencyProjectId === p.id.toString() ? 'text-[#457bff] bg-[#457bff]/10' : 'text-white/30 hover:text-white hover:bg-white/5'}`}
+                            >
+                              {p.name}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
             
             <div className="bg-[#0a0a14]/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/10 flex flex-col gap-6 shadow-2xl">
