@@ -51,17 +51,22 @@ export async function POST(req: Request) {
     };
 
     // 2. Trigger Pusher for real-time
-    // @ts-ignore
-    const PusherClass = Pusher.default || Pusher;
-    const pusher = new PusherClass({
-      appId:   process.env.PUSHER_APP_ID!,
-      key:     process.env.NEXT_PUBLIC_PUSHER_KEY!,
-      secret:  process.env.PUSHER_SECRET!,
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-      useTLS:  true,
-    });
+    try {
+      const appId = process.env.PUSHER_APP_ID;
+      const key = process.env.NEXT_PUBLIC_PUSHER_KEY;
+      const secret = process.env.PUSHER_SECRET;
+      const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
 
-    await pusher.trigger("chat-channel", "new-message", message);
+      if (appId && key && secret && cluster) {
+        // @ts-ignore
+        const PusherClass = Pusher.default || Pusher;
+        const pusher = new PusherClass({
+          appId, key, secret, cluster,
+          useTLS: true,
+        });
+        await pusher.trigger("chat-channel", "new-message", message);
+      }
+    } catch (e) { console.error("Pusher chat trigger failed", e); }
 
     return NextResponse.json({ message: "Sent" });
   } catch (err: any) {

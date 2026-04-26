@@ -94,16 +94,20 @@ export async function POST(req: Request) {
 
     // 3. Trigger Pusher for Board Update
     try {
-      // @ts-ignore
-      const PusherClass = (await import("pusher")).default || (await import("pusher"));
-      const pusher = new PusherClass({
-        appId:   process.env.PUSHER_APP_ID!,
-        key:     process.env.NEXT_PUBLIC_PUSHER_KEY!,
-        secret:  process.env.PUSHER_SECRET!,
-        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-        useTLS:  true,
-      });
-      await pusher.trigger("board-channel", "new-post", { title, author: session.user?.name });
+      const appId = process.env.PUSHER_APP_ID;
+      const key = process.env.NEXT_PUBLIC_PUSHER_KEY;
+      const secret = process.env.PUSHER_SECRET;
+      const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+
+      if (appId && key && secret && cluster) {
+        // @ts-ignore
+        const PusherClass = (await import("pusher")).default || (await import("pusher"));
+        const pusher = new PusherClass({
+          appId, key, secret, cluster,
+          useTLS: true,
+        });
+        await pusher.trigger("board-channel", "new-post", { title, author: session.user?.name });
+      }
     } catch (e) { console.error("Pusher board trigger failed", e); }
 
     return NextResponse.json({ message: "Post created", postId: result.postId }, { status: 201 });

@@ -19,7 +19,9 @@ interface Post {
 }
 
 function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
+  const date = new Date(dateStr);
+  const diff = Date.now() - date.getTime();
+  if (isNaN(diff)) return "recently";
   const m = Math.floor(diff / 60000);
   if (m < 1) return "just now";
   if (m < 60) return `${m}m ago`;
@@ -29,12 +31,15 @@ function timeAgo(dateStr: string) {
 }
 
 function PostCard({ post, shouldExpand }: { post: Post, shouldExpand?: boolean }) {
-  const [expanded, setExpanded] = useState(shouldExpand || false);
+  const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (shouldExpand && ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (shouldExpand) {
+      setExpanded(true);
+      if (ref.current) {
+        ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }
   }, [shouldExpand]);
 
@@ -60,7 +65,7 @@ function PostCard({ post, shouldExpand }: { post: Post, shouldExpand?: boolean }
       <p 
         className={`text-sm text-[rgba(240,248,255,0.5)] mb-4 leading-relaxed ${expanded ? "" : "line-clamp-3"}`}
         dangerouslySetInnerHTML={{ 
-          __html: post.content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') 
+          __html: (post.content || "").replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') 
         }}
       />
 
