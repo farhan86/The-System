@@ -50,11 +50,25 @@ export default function ProjectCreator({ onCreated }: { onCreated: () => void })
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col">
             <label className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1.5 ml-1">Commencement</label>
-            <input type="date" value={start} onChange={e => setStart(e.target.value)} className={inputClass} required />
+            <input 
+              type="date" 
+              value={start} 
+              onChange={e => setStart(e.target.value)} 
+              onClick={(e) => e.currentTarget.showPicker?.()}
+              className={inputClass} 
+              required 
+            />
           </div>
           <div className="flex flex-col">
             <label className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1.5 ml-1">Deadline</label>
-            <input type="date" value={end} onChange={e => setEnd(e.target.value)} className={inputClass} required />
+            <input 
+              type="date" 
+              value={end} 
+              onChange={e => setEnd(e.target.value)} 
+              onClick={(e) => e.currentTarget.showPicker?.()}
+              className={inputClass} 
+              required 
+            />
           </div>
         </div>
         
