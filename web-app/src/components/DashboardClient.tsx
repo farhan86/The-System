@@ -2,7 +2,7 @@
 import ProjectCreator from "@/components/ProjectCreator";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DashboardClient({ firstName, stats, posts, projects, PostCard, StatCard }: any) {
   const router = useRouter();
