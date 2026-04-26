@@ -184,6 +184,16 @@ function BoardContent() {
   const searchParams = useSearchParams();
   const highlightId = searchParams.get("postId");
 
+  useEffect(() => {
+    if (highlightId) {
+      // Clear the highlighted post ID from URL after it's been processed
+      const timer = setTimeout(() => {
+        window.history.replaceState({}, '', '/board');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightId]);
+
   const fetchProjects = async () => {
     const res = await fetch("/api/projects");
     const data = await res.json();

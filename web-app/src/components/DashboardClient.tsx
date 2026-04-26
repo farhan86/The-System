@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 export default function DashboardClient({ firstName, stats, posts, projects, PostCard, StatCard }: any) {
   const router = useRouter();
   const [projectFilter, setProjectFilter] = useState("Active");
+  const [efficiencyProjectId, setEfficiencyProjectId] = useState<string>("all");
 
   const filteredProjects = projects.filter((p: any) => {
     if (projectFilter === "All") return true;
@@ -14,6 +15,24 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
     if (projectFilter === "Inactive") return p.status === "Completed";
     return true;
   });
+
+  const efficiencyStats = efficiencyProjectId === "all" 
+    ? {
+        todo: stats.todoTasks || 0,
+        progress: stats.progressTasks || 0,
+        done: stats.doneTasks || 0
+      }
+    : (() => {
+        const p = projects.find((p: any) => p.id.toString() === efficiencyProjectId);
+        return {
+          todo: p?.todo_tasks || 0,
+          progress: p?.progress_tasks || 0,
+          done: p?.done_tasks || 0
+        };
+      })();
+
+  const effTotal = efficiencyStats.todo + efficiencyStats.progress + efficiencyStats.done;
+  const effRate = effTotal > 0 ? Math.round((efficiencyStats.done / effTotal) * 100) : 0;
 
   const toggleProjectStatus = async (id: number, currentStatus: string) => {
     const newStatus = currentStatus === "Completed" ? "Active" : "Completed";
@@ -79,6 +98,16 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
                 <div className="w-1.5 h-4 bg-[#457bff] rounded-full" />
                 Performance
               </h3>
+              <select 
+                value={efficiencyProjectId} 
+                onChange={(e) => setEfficiencyProjectId(e.target.value)}
+                className="bg-transparent text-[10px] font-black text-[#457bff] uppercase border-none outline-none cursor-pointer hover:text-white transition-colors"
+              >
+                <option value="all">Global System</option>
+                {projects.map((p: any) => (
+                  <option key={p.id} value={p.id.toString()}>{p.name}</option>
+                ))}
+              </select>
             </div>
             
             <div className="bg-[#0a0a14]/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/10 flex flex-col gap-6 shadow-2xl">
@@ -86,31 +115,31 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
                 <div className="flex justify-between items-end mb-4">
                   <div>
                     <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Completion Index</div>
-                    <div className="text-4xl font-black text-[#f0f8ff] tracking-tighter">{completionRate}%</div>
+                    <div className="text-4xl font-black text-[#f0f8ff] tracking-tighter">{effRate}%</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] text-white/10 font-black uppercase">{stats.doneTasks} / {totalTasks} COMPLETED</div>
+                    <div className="text-[10px] text-white/10 font-black uppercase">{efficiencyStats.done} / {effTotal} COMPLETED</div>
                   </div>
                 </div>
                 
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden flex">
-                  <motion.div initial={{ width: 0 }} animate={{ width: `${(stats.doneTasks / totalTasks) * 100}%` }} className="h-full bg-gradient-to-r from-emerald-500 to-green-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]" />
-                  <motion.div initial={{ width: 0 }} animate={{ width: `${(stats.progressTasks / totalTasks) * 100}%` }} className="h-full bg-[#457bff] opacity-20" />
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${effTotal > 0 ? (efficiencyStats.done / effTotal) * 100 : 0}%` }} className="h-full bg-gradient-to-r from-emerald-500 to-green-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]" />
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${effTotal > 0 ? (efficiencyStats.progress / effTotal) * 100 : 0}%` }} className="h-full bg-[#457bff] opacity-20" />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
                   <div className="text-[9px] text-white/20 font-black uppercase mb-1">To Do</div>
-                  <div className="text-xl font-black text-white/80">{stats.todoTasks}</div>
+                  <div className="text-xl font-black text-white/80">{efficiencyStats.todo}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-center">
                   <div className="text-[9px] text-blue-400 font-black uppercase mb-1">Doing</div>
-                  <div className="text-xl font-black text-blue-400">{stats.progressTasks}</div>
+                  <div className="text-xl font-black text-blue-400">{efficiencyStats.progress}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-center">
                   <div className="text-[9px] text-emerald-400 font-black uppercase mb-1">Done</div>
-                  <div className="text-xl font-black text-emerald-400">{stats.doneTasks}</div>
+                  <div className="text-xl font-black text-emerald-400">{efficiencyStats.done}</div>
                 </div>
               </div>
             </div>
