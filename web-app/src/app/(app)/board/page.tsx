@@ -1,6 +1,7 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 interface Project {
   id: number;
@@ -27,12 +28,21 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-function PostCard({ post }: { post: Post }) {
-  const [expanded, setExpanded] = useState(false);
+function PostCard({ post, shouldExpand }: { post: Post, shouldExpand?: boolean }) {
+  const [expanded, setExpanded] = useState(shouldExpand || false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (shouldExpand && ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [shouldExpand]);
+
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-      className="bg-[rgba(14,12,28,0.75)] backdrop-blur-xl rounded-2xl p-5 md:p-6 cursor-pointer border border-[rgba(138,43,226,0.15)] hover:border-[rgba(138,43,226,0.4)] transition-all"
+      className={`bg-[rgba(14,12,28,0.75)] backdrop-blur-xl rounded-2xl p-5 md:p-6 cursor-pointer border transition-all ${shouldExpand ? 'border-[#457bff] ring-1 ring-[#457bff]/30' : 'border-[rgba(138,43,226,0.15)] hover:border-[rgba(138,43,226,0.4)]'}`}
       onClick={() => setExpanded(!expanded)}
     >
       <div className="flex justify-between items-start mb-3">
@@ -161,11 +171,13 @@ function Composer({ projects, onPosted }: { projects: Project[], onPosted: () =>
   );
 }
 
-export default function BoardPage() {
+function BoardContent() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [filterProject, setFilterProject] = useState("");
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const highlightId = searchParams.get("postId");
 
   const fetchProjects = async () => {
     const res = await fetch("/api/projects");
@@ -216,9 +228,23 @@ export default function BoardPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {posts.map(post => <PostCard key={post.id} post={post} />)}
+          {posts.map(post => (
+            <PostCard 
+              key={post.id} 
+              post={post} 
+              shouldExpand={highlightId === post.id.toString()} 
+            />
+          ))}
         </div>
       )}
     </div>
+  );
+}
+
+export default function BoardPage() {
+  return (
+    <Suspense fallback={<div>Loading board...</div>}>
+      <BoardContent />
+    </Suspense>
   );
 }

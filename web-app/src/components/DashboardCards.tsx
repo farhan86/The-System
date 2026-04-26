@@ -34,30 +34,32 @@ export function PostCard({ post }: { post: any }) {
   }
 
   return (
-    <div className="bg-[#0a0a14]/40 backdrop-blur-xl rounded-xl p-5 border border-white/5 transition-all cursor-pointer hover:border-[#8a2be2]/30 hover:-translate-y-0.5 group">
-      <div className="flex justify-between items-start mb-3">
-        <div>
-          <h4 className="font-bold text-sm text-[#f0f8ff] m-0 group-hover:text-[#457bff] transition-colors">{post.title}</h4>
-          {post.project_name && (
-            <span className="text-[9px] text-[#457bff] font-black uppercase tracking-tighter mt-1 block opacity-60">
-              {post.project_name}
-            </span>
-          )}
+    <Link href={`/board?postId=${post.id}`} className="no-underline block">
+      <div className="bg-[#0a0a14]/40 backdrop-blur-xl rounded-xl p-5 border border-white/5 transition-all cursor-pointer hover:border-[#8a2be2]/30 hover:-translate-y-0.5 group">
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <h4 className="font-bold text-sm text-[#f0f8ff] m-0 group-hover:text-[#457bff] transition-colors">{post.title}</h4>
+            {post.project_name && (
+              <span className="text-[9px] text-[#457bff] font-black uppercase tracking-tighter mt-1 block opacity-60">
+                {post.project_name}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] text-white/20 font-bold ml-4">{timeAgo(post.created_at)}</span>
         </div>
-        <span className="text-[10px] text-white/20 font-bold ml-4">{timeAgo(post.created_at)}</span>
-      </div>
-      <p 
-        className="text-[12px] text-white/40 leading-relaxed mb-4 line-clamp-2"
-        dangerouslySetInnerHTML={{ 
-          __html: post.content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') 
-        }}
-      />
-      <div className="flex items-center gap-2.5 border-t border-white/5 pt-3">
-        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#6a0dad] to-[#457bff] flex items-center justify-center text-[9px] font-black text-white border border-white/10">
-          {post.author_name?.[0]?.toUpperCase() ?? "?"}
+        <p 
+          className="text-[12px] text-white/40 leading-relaxed mb-4 line-clamp-2"
+          dangerouslySetInnerHTML={{ 
+            __html: post.content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') 
+          }}
+        />
+        <div className="flex items-center gap-2.5 border-t border-white/5 pt-3">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#6a0dad] to-[#457bff] flex items-center justify-center text-[9px] font-black text-white border border-white/10">
+            {post.author_name?.[0]?.toUpperCase() ?? "?"}
+          </div>
+          <span className="text-[11px] text-white/30 font-bold">{post.author_name}</span>
         </div>
-        <span className="text-[11px] text-white/30 font-bold">{post.author_name}</span>
       </div>
-    </div>
+    </Link>
   );
 }

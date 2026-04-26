@@ -80,7 +80,11 @@ export default function ProjectCreator({ onCreated }: { onCreated: () => void })
         </button>
       </form>
       <style>{`
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.3; cursor: pointer; }
+        input[type="date"]::-webkit-calendar-picker-indicator { 
+          filter: invert(1); 
+          opacity: 0.7; 
+          cursor: pointer; 
+        }
         input[type="date"] { color-scheme: dark; }
       `}</style>
     </div>
