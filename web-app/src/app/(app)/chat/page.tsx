@@ -18,35 +18,24 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Dynamic import to avoid SSR errors
     let channel: any;
     let pusher: any;
-
     const initPusher = async () => {
-      // Fetch History
       try {
         const res = await fetch("/api/chat");
         const history = await res.json();
         setMessages(history);
       } catch (e) { console.error("History fetch failed", e); }
-
       const PusherJS = (await import("pusher-js")).default;
       // @ts-ignore
       const PClient = PusherJS.default || PusherJS;
-      
-      pusher = new PClient(
-        process.env.NEXT_PUBLIC_PUSHER_KEY!,
-        { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER! }
-      );
-
+      pusher = new PClient(process.env.NEXT_PUBLIC_PUSHER_KEY!, { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER! });
       channel = pusher.subscribe("chat-channel");
       channel.bind("new-message", (msg: Message) => {
         setMessages(prev => [...prev, msg]);
       });
     };
-
     initPusher();
-
     return () => { 
       if (channel) channel.unbind_all();
       if (pusher) pusher.unsubscribe("chat-channel");
@@ -60,12 +49,7 @@ export default function ChatPage() {
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-
-    const msg = {
-      text: input,
-      user: session?.user?.name || "Anonymous",
-    };
-
+    const msg = { text: input, user: session?.user?.name || "Anonymous" };
     setInput("");
     await fetch("/api/chat", {
       method: "POST",
@@ -75,71 +59,61 @@ export default function ChatPage() {
   };
 
   return (
-    <div style={{ height: "calc(100vh - 160px)", display: "flex", flexDirection: "column", maxWidth: 1000, margin: "0 auto" }}>
-      <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 30, fontWeight: 800, color: "#f0f8ff", margin: 0 }}>
-          System <span style={{ color: "#457bff", textShadow: "0 0 20px rgba(69,123,255,0.4)" }}>Chat</span>
+    <div className="flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-160px)] max-w-[1000px] mx-auto pb-4">
+      <div className="mb-4 md:mb-6">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-[#f0f8ff] m-0">
+          System <span className="text-[#457bff] [text-shadow:0_0_20px_rgba(69,123,255,0.4)]">Chat</span>
         </h2>
       </div>
 
-      <div style={{
-        flex: 1, background: "rgba(14,12,28,0.6)", backdropFilter: "blur(20px)",
-        borderRadius: 20, border: "1px solid rgba(138,43,226,0.15)",
-        display: "flex", flexDirection: "column", overflow: "hidden"
-      }}>
-        <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="flex-1 flex flex-col bg-[rgba(14,12,28,0.6)] backdrop-blur-2xl rounded-2xl md:rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-4 no-scrollbar">
           {messages.length === 0 && (
-            <div style={{ textAlign: "center", color: "rgba(240,248,255,0.15)", marginTop: 40 }}>
-              <p style={{ fontSize: 40 }}>💬</p>
-              <p>No messages yet. Start the conversation!</p>
+            <div className="text-center text-white/10 mt-10">
+              <p className="text-4xl">💬</p>
+              <p className="text-sm font-bold uppercase tracking-widest">Start the conversation</p>
             </div>
           )}
           <AnimatePresence>
-            {messages.map((m) => (
-              <motion.div
-                key={m.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                style={{
-                  alignSelf: m.user === session?.user?.name ? "flex-end" : "flex-start",
-                  maxWidth: "70%"
-                }}
-              >
-                <div style={{ fontSize: 11, color: "rgba(240,248,255,0.3)", marginBottom: 4, marginLeft: 4 }}>{m.user}</div>
-                <div style={{
-                  padding: "10px 16px", borderRadius: 16,
-                  background: m.user === session?.user?.name 
-                    ? "linear-gradient(135deg, #6a0dad, #8a2be2)" 
-                    : "rgba(255,255,255,0.05)",
-                  color: "#f0f8ff", fontSize: 14, lineHeight: 1.5,
-                  boxShadow: m.user === session?.user?.name ? "0 4px 15px rgba(138,43,226,0.2)" : "none"
-                }}>
-                  {m.text}
-                </div>
-              </motion.div>
-            ))}
+            {messages.map((m) => {
+              const isMe = m.user === session?.user?.name;
+              return (
+                <motion.div
+                  key={m.id}
+                  initial={{ opacity: 0, x: isMe ? 20 : -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className={`flex flex-col max-w-[85%] md:max-w-[70%] ${isMe ? "self-end items-end" : "self-start items-start"}`}
+                >
+                  <span className="text-[9px] font-black uppercase text-white/30 mb-1 ml-1">{m.user}</span>
+                  <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-lg ${
+                    isMe 
+                    ? "bg-gradient-to-br from-[#6a0dad] to-[#8a2be2] text-white rounded-tr-none" 
+                    : "bg-white/5 text-[#f0f8ff] border border-white/5 rounded-tl-none"
+                  }`}>
+                    {m.text}
+                  </div>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
 
-        <form onSubmit={sendMessage} style={{ padding: 20, borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", gap: 12 }}>
+        <form onSubmit={sendMessage} className="p-3 md:p-5 border-t border-white/5 flex gap-2 md:gap-4 bg-white/2">
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="Type a message..."
-            style={{
-              flex: 1, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 12, padding: "12px 16px", color: "#f0f8ff", outline: "none"
-            }}
+            placeholder="Write a message..."
+            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-[#457bff]/50 transition-all"
           />
-          <button type="submit" style={{
-            background: "linear-gradient(135deg, #6a0dad, #457bff)",
-            color: "#fff", border: "none", borderRadius: 12, padding: "0 24px",
-            fontWeight: 700, cursor: "pointer"
-          }}>
+          <button type="submit" className="bg-gradient-to-r from-[#6a0dad] to-[#457bff] text-white rounded-xl px-6 md:px-8 font-bold text-sm shadow-lg hover:brightness-110 active:scale-95 transition-all">
             Send
           </button>
         </form>
       </div>
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }
