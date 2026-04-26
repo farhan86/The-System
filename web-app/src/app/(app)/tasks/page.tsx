@@ -40,7 +40,6 @@ export default function KanbanPage() {
   useEffect(() => { fetchData(); }, [selectedProject]);
 
   const updateStatus = async (taskId: number, newStatus: string) => {
-    // Optimistic update
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus as any } : t));
     await fetch("/api/tasks", {
       method: "POST",
@@ -52,11 +51,7 @@ export default function KanbanPage() {
     if (!newTaskTitle || !selectedProject) return;
     const res = await fetch("/api/tasks", {
       method: "POST",
-      body: JSON.stringify({ 
-        project_id: selectedProject, 
-        title: newTaskTitle,
-        status 
-      })
+      body: JSON.stringify({ project_id: selectedProject, title: newTaskTitle, status })
     });
     if (res.ok) {
       setNewTaskTitle("");
@@ -68,13 +63,13 @@ export default function KanbanPage() {
   const columns = ["To Do", "In Progress", "Done"];
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32 }}>
+    <div className="max-w-[1200px] mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 md:mb-10">
         <div>
-          <h2 style={{ fontSize: 30, fontWeight: 800, color: "#f0f8ff", margin: 0 }}>
-            Task <span style={{ color: "#457bff", textShadow: "0 0 20px rgba(69,123,255,0.4)" }}>Board</span>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#f0f8ff] m-0">
+            Task <span className="text-[#457bff] [text-shadow:0_0_20px_rgba(69,123,255,0.4)]">Board</span>
           </h2>
-          <p style={{ color: "rgba(240,248,255,0.35)", marginTop: 6, fontSize: 14 }}>
+          <p className="text-sm text-[rgba(240,248,255,0.35)] mt-2">
             Manage and track progress across all project tasks.
           </p>
         </div>
@@ -82,30 +77,25 @@ export default function KanbanPage() {
         <select 
           value={selectedProject}
           onChange={e => setSelectedProject(e.target.value)}
-          style={{
-            background: "rgba(14,12,28,0.5)", border: "1px solid rgba(138,43,226,0.3)",
-            borderRadius: 10, padding: "10px 16px", color: "#f0f8ff", outline: "none", cursor: "pointer"
-          }}
+          className="w-full md:w-auto bg-[rgba(14,12,28,0.5)] border border-[rgba(138,43,226,0.3)] rounded-xl px-4 py-3 text-[#f0f8ff] text-sm outline-none cursor-pointer"
         >
           <option value="">All Projects</option>
           {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+      {/* Kanban Columns - Horizontal scroll on mobile */}
+      <div className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto pb-6 snap-x no-scrollbar">
         {columns.map(col => (
-          <div key={col} style={{ 
-            background: "rgba(255,255,255,0.02)", borderRadius: 20, padding: 20,
-            border: "1px solid rgba(255,255,255,0.05)", minHeight: 600
-          }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, color: "rgba(240,248,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 20, display: "flex", justifyContent: "space-between" }}>
+          <div key={col} className="min-w-[280px] md:min-w-0 flex-1 snap-center bg-[rgba(255,255,255,0.02)] rounded-3xl p-5 border border-[rgba(255,255,255,0.05)] min-h-[500px] md:min-h-[600px]">
+            <h3 className="text-xs font-bold text-[rgba(240,248,255,0.3)] uppercase tracking-widest mb-6 flex justify-between items-center">
               {col}
-              <span style={{ background: "rgba(255,255,255,0.05)", padding: "2px 8px", borderRadius: 10, fontSize: 10 }}>
+              <span className="bg-[rgba(255,255,255,0.05)] px-2.5 py-1 rounded-full text-[10px]">
                 {tasks.filter(t => t.status === col).length}
               </span>
             </h3>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="flex flex-col gap-3">
               <AnimatePresence>
                 {tasks.filter(t => t.status === col).map(task => (
                   <motion.div
@@ -114,17 +104,16 @@ export default function KanbanPage() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    style={{
-                      background: "rgba(14,12,28,0.8)", border: "1px solid rgba(138,43,226,0.15)",
-                      borderRadius: 12, padding: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
-                    }}
+                    className="bg-[rgba(14,12,28,0.8)] border border-[rgba(138,43,226,0.15)] rounded-2xl p-4 shadow-lg"
                   >
-                    <div style={{ color: "#f0f8ff", fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{task.title}</div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 10, color: "rgba(69,123,255,0.6)", fontWeight: 700 }}>{task.project_name || "General"}</span>
-                      <div style={{ display: "flex", gap: 4 }}>
-                        {col !== "To Do" && <button onClick={() => updateStatus(task.id, columns[columns.indexOf(col)-1])} style={btnStyle}>←</button>}
-                        {col !== "Done" && <button onClick={() => updateStatus(task.id, columns[columns.indexOf(col)+1])} style={btnStyle}>→</button>}
+                    <div className="text-[#f0f8ff] text-sm font-semibold mb-3 leading-tight">{task.title}</div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] text-[#457bff] font-bold uppercase tracking-wide opacity-60">
+                        {task.project_name || "General"}
+                      </span>
+                      <div className="flex gap-2">
+                        {col !== "To Do" && <button onClick={() => updateStatus(task.id, columns[columns.indexOf(col)-1])} className={btnClass}>←</button>}
+                        {col !== "Done" && <button onClick={() => updateStatus(task.id, columns[columns.indexOf(col)+1])} className={btnClass}>→</button>}
                       </div>
                     </div>
                   </motion.div>
@@ -133,31 +122,15 @@ export default function KanbanPage() {
 
               {selectedProject && (
                 addingTo === col ? (
-                  <div style={{ marginTop: 8 }}>
-                    <input 
-                      autoFocus
-                      value={newTaskTitle}
-                      onChange={e => setNewTaskTitle(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && createTask(col)}
-                      placeholder="Task title..."
-                      style={{
-                        width: "100%", background: "#0e0c1c", border: "1px solid #457bff",
-                        borderRadius: 8, padding: "8px 12px", color: "#fff", fontSize: 13, outline: "none"
-                      }}
-                    />
-                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                      <button onClick={() => createTask(col)} style={{ flex: 1, background: "#457bff", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, fontWeight: 700, padding: 6, cursor: "pointer" }}>Add</button>
-                      <button onClick={() => setAddingTo(null)} style={{ flex: 1, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "#fff", fontSize: 11, padding: 6, cursor: "pointer" }}>Cancel</button>
+                  <div className="mt-2 flex flex-col gap-2">
+                    <input autoFocus value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && createTask(col)} placeholder="Task title..." className="w-full bg-[#0e0c1c] border border-[#457bff] rounded-xl px-3 py-2.5 text-white text-sm outline-none" />
+                    <div className="flex gap-2">
+                      <button onClick={() => createTask(col)} className="flex-1 bg-[#457bff] rounded-lg text-white text-[11px] font-bold py-2 cursor-pointer">Add</button>
+                      <button onClick={() => setAddingTo(null)} className="flex-1 bg-transparent border border-[rgba(255,255,255,0.1)] rounded-lg text-white text-[11px] py-2 cursor-pointer">Cancel</button>
                     </div>
                   </div>
                 ) : (
-                  <button 
-                    onClick={() => setAddingTo(col)}
-                    style={{
-                      marginTop: 8, background: "transparent", border: "1px dashed rgba(255,255,255,0.1)",
-                      borderRadius: 10, padding: 10, color: "rgba(240,248,255,0.2)", fontSize: 12, cursor: "pointer"
-                    }}
-                  >
+                  <button onClick={() => setAddingTo(col)} className="mt-2 bg-transparent border border-dashed border-[rgba(255,255,255,0.1)] rounded-xl py-3 text-[rgba(240,248,255,0.2)] text-xs cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-all">
                     + Add Task
                   </button>
                 )
@@ -166,11 +139,12 @@ export default function KanbanPage() {
           </div>
         ))}
       </div>
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }
 
-const btnStyle = {
-  background: "rgba(255,255,255,0.05)", border: "none", borderRadius: 4, 
-  color: "rgba(240,248,255,0.4)", fontSize: 10, cursor: "pointer", padding: "2px 6px"
-};
+const btnClass = "bg-[rgba(255,255,255,0.05)] border-none rounded-md text-[rgba(240,248,255,0.4)] text-xs cursor-pointer px-2 py-1 hover:bg-[rgba(255,255,255,0.1)] transition-all";
