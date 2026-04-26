@@ -40,16 +40,19 @@ function PostCard({ post }: { post: Post }) {
           <h3 className="font-bold text-base md:text-lg text-[#f0f8ff] m-0 leading-tight">{post.title}</h3>
           {post.project_name && (
             <span className="text-[10px] text-[#457bff] font-bold uppercase tracking-wider mt-1.5 block">
-              📁 {post.project_name}
+              Project: {post.project_name}
             </span>
           )}
         </div>
         <span className="text-[10px] text-[rgba(240,248,255,0.25)] flex-shrink-0 ml-4">{timeAgo(post.created_at)}</span>
       </div>
 
-      <p className={`text-sm text-[rgba(240,248,255,0.5)] mb-4 leading-relaxed ${expanded ? "" : "line-clamp-3"}`}>
-        {post.content}
-      </p>
+      <p 
+        className={`text-sm text-[rgba(240,248,255,0.5)] mb-4 leading-relaxed ${expanded ? "" : "line-clamp-3"}`}
+        dangerouslySetInnerHTML={{ 
+          __html: post.content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') 
+        }}
+      />
 
       {post.attachments && post.attachments.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
@@ -58,7 +61,7 @@ function PostCard({ post }: { post: Post }) {
               onClick={e => e.stopPropagation()}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[rgba(69,123,255,0.1)] border border-[rgba(69,123,255,0.3)] text-[#6aabff] text-[11px] font-bold hover:bg-[rgba(69,123,255,0.2)] transition-all"
             >
-              📎 {att.orig_filename}
+              File: {att.orig_filename}
             </a>
           ))}
         </div>
@@ -117,7 +120,7 @@ function Composer({ projects, onPosted }: { projects: Project[], onPosted: () =>
             onClick={() => setOpen(true)}
             className="w-full p-4 md:p-6 text-left bg-[rgba(14,12,28,0.7)] backdrop-blur-xl rounded-2xl border border-dashed border-[rgba(138,43,226,0.35)] text-[rgba(240,248,255,0.4)] text-sm transition-all hover:border-[rgba(138,43,226,0.7)] hover:text-[#f0f8ff]"
           >
-            ✏️ &nbsp; Share knowledge with the team...
+            Click to share knowledge with the team...
           </motion.button>
         ) : (
           <motion.div key="composer" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
@@ -143,7 +146,7 @@ function Composer({ projects, onPosted }: { projects: Project[], onPosted: () =>
               {file && <button onClick={() => setFile(null)} className="text-[10px] text-rose-500 font-bold uppercase">Remove</button>}
             </div>
 
-            {error && <p className="text-xs text-rose-400 mb-4">❌ {error}</p>}
+            {error && <p className="text-xs text-rose-400 mb-4">{error}</p>}
 
             <div className="flex gap-3 justify-end">
               <button onClick={reset} className="px-5 py-2.5 rounded-xl border border-white/10 text-white/40 text-sm font-bold">Cancel</button>

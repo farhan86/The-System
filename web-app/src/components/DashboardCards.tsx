@@ -46,9 +46,12 @@ export function PostCard({ post }: { post: any }) {
         </div>
         <span className="text-[10px] text-white/20 font-bold ml-4">{timeAgo(post.created_at)}</span>
       </div>
-      <p className="text-[12px] text-white/40 leading-relaxed mb-4 line-clamp-2">
-        {post.content}
-      </p>
+      <p 
+        className="text-[12px] text-white/40 leading-relaxed mb-4 line-clamp-2"
+        dangerouslySetInnerHTML={{ 
+          __html: post.content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') 
+        }}
+      />
       <div className="flex items-center gap-2.5 border-t border-white/5 pt-3">
         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#6a0dad] to-[#457bff] flex items-center justify-center text-[9px] font-black text-white border border-white/10">
           {post.author_name?.[0]?.toUpperCase() ?? "?"}
