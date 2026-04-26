@@ -39,7 +39,6 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
           <div>
             <h2 className="text-2xl md:text-3xl font-black text-[#f0f8ff] m-0 flex items-center gap-3">
               Welcome back, <span className="text-[#457bff] tracking-tight">{firstName}</span> 
-              <span className="text-xl opacity-50">⚡</span>
             </h2>
             <p className="text-sm text-white/30 mt-1 font-medium">
               System core is active. Monitoring {projects.length} concurrent projects.
