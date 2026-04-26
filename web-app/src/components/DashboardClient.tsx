@@ -2,6 +2,7 @@
 import ProjectCreator from "@/components/ProjectCreator";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function DashboardClient({ firstName, stats, posts, projects, PostCard, StatCard }: any) {
   const router = useRouter();
@@ -23,6 +24,9 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
     });
     router.refresh();
   };
+
+  const totalTasks = (stats.todoTasks || 0) + (stats.progressTasks || 0) + (stats.doneTasks || 0);
+  const completionRate = totalTasks > 0 ? Math.round((stats.doneTasks / totalTasks) * 100) : 0;
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 40 }}>
@@ -71,14 +75,69 @@ export default function DashboardClient({ firstName, stats, posts, projects, Pos
             )}
           </div>
 
-          {/* Task Breakdown Placeholder */}
+          {/* Task Breakdown */}
           <div>
             <h3 style={{ fontSize: 17, fontWeight: 700, color: "rgba(240,248,255,0.6)", marginBottom: 18, display: "flex", alignItems: "center", gap: 10, margin: "0 0 18px 0" }}>
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#457bff", display: "inline-block", boxShadow: "0 0 10px rgba(69,123,255,0.8)" }} />
-              Task Breakdown
+              System Efficiency
             </h3>
-            <div style={{ background: "rgba(14,12,28,0.6)", borderRadius: 20, padding: 24, border: "1px solid rgba(138,43,226,0.15)" }}>
-               <div style={{ color: "rgba(240,248,255,0.4)", fontSize: 13 }}>Refining task metrics... Stay tuned for tomorrow!</div>
+            
+            <div style={{
+              background: "rgba(14,12,28,0.6)", backdropFilter: "blur(20px)",
+              borderRadius: 24, padding: 28, border: "1px solid rgba(138,43,226,0.15)",
+              display: "flex", flexDirection: "column", gap: 24,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
+            }}>
+              {/* Circular/Bar Progress Container */}
+              <div style={{ position: "relative" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(240,248,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Overall Progress</div>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: "#f0f8ff" }}>{completionRate}%</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 10, color: "rgba(240,248,255,0.2)" }}>{stats.doneTasks} of {totalTasks} Tasks</div>
+                  </div>
+                </div>
+                
+                {/* Custom Multi-Segment Bar */}
+                <div style={{ height: 10, width: "100%", background: "rgba(255,255,255,0.05)", borderRadius: 5, overflow: "hidden", display: "flex" }}>
+                  <motion.div 
+                    initial={{ width: 0 }} animate={{ width: `${(stats.doneTasks / totalTasks) * 100}%` }}
+                    style={{ height: "100%", background: "linear-gradient(90deg, #22c55e, #4ade80)", boxShadow: "0 0 15px rgba(34,197,94,0.4)" }} 
+                  />
+                  <motion.div 
+                    initial={{ width: 0 }} animate={{ width: `${(stats.progressTasks / totalTasks) * 100}%` }}
+                    style={{ height: "100%", background: "linear-gradient(90deg, #457bff, #6aabff)", opacity: 0.8 }} 
+                  />
+                </div>
+              </div>
+
+              {/* Status Breakdown Pills */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                <div style={{ padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div style={{ fontSize: 9, color: "rgba(240,248,255,0.25)", textTransform: "uppercase", marginBottom: 4 }}>To Do</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "#f0f8ff" }}>{stats.todoTasks}</div>
+                </div>
+                <div style={{ padding: "12px 16px", background: "rgba(69,123,255,0.05)", borderRadius: 14, border: "1px solid rgba(69,123,255,0.1)" }}>
+                  <div style={{ fontSize: 9, color: "rgba(69,123,255,0.5)", textTransform: "uppercase", marginBottom: 4 }}>In Progress</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "#457bff" }}>{stats.progressTasks}</div>
+                </div>
+                <div style={{ padding: "12px 16px", background: "rgba(34,197,94,0.05)", borderRadius: 14, border: "1px solid rgba(34,197,94,0.1)" }}>
+                  <div style={{ fontSize: 9, color: "rgba(34,197,94,0.5)", textTransform: "uppercase", marginBottom: 4 }}>Done</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "#22c55e" }}>{stats.doneTasks}</div>
+                </div>
+              </div>
+
+              <div style={{ 
+                padding: "14px", background: "rgba(138,43,226,0.05)", borderRadius: 12, 
+                border: "1px solid rgba(138,43,226,0.1)", textAlign: "center"
+              }}>
+                <p style={{ fontSize: 11, color: "rgba(240,248,255,0.4)", margin: 0 }}>
+                  Team output is <span style={{ color: "#8a2be2", fontWeight: 800 }}>Steady</span>. 
+                  {stats.pendingTasks > 10 ? " High workload detected." : " Focus on current sprints."}
+                </p>
+              </div>
             </div>
           </div>
         </div>
